@@ -1,196 +1,233 @@
 <!doctype html>
 <html lang="ko">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>전세계약 도우미</title>
 <style>
-:root{color-scheme:light;--blue:#215bea;--ink:#142443;--muted:#52627b;--border:#dce5f2;--wash:#edf3ff;--paper:#fff}
+:root{
+  color-scheme:light;
+  --blue:#215bea;
+  --blue-ink:#1749bd;
+  --ink:#142443;
+  --muted:#52627b;
+  --border:#dce5f2;
+  --border-strong:#cbd0d9;
+  --input-border:#aebed7;
+  --wash:#edf3ff;
+  --surface:#f5f7fa;
+  --surface-alt:#f3f5f8;
+  --paper:#fff;
+  --danger:#b42330;
+  --error:#aa2532;
+  --focus:#6d9bff;
+}
 *{box-sizing:border-box}
-body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 header,main{max-width:960px;margin:auto;padding:20px clamp(16px,4vw,36px)}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-main{padding-top:12px;padding-bottom:48px}
-small,.muted{color:var(--muted)} p{margin:8px 0 16px}
-h1,h2,h3{line-height:1.24;margin:0 0 10px;overflow-wrap:anywhere} h1{font-size:clamp(26px,5vw,38px)}
-h2{font-size:22px} h3{font-size:17px}
-button,input,select,textarea{font:inherit} button{cursor:pointer}
-button{min-height:44px;padding:9px 14px;border:1px solid var(--border);border-radius:10px;background:var(--paper);color:var(--ink)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #6d9bff;outline-offset:2px}
-.primary{background:var(--blue);border-color:var(--blue);color:white;font-weight:700}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.brand{display:inline-flex;align-items:center;gap:8px;font-size:17px;font-weight:750;letter-spacing:-.02em;color:var(--ink);background:transparent;border:0;padding:0;min-height:44px}
+main{padding-top:20px;padding-bottom:48px}
+small,.muted{color:var(--muted)}
+p{margin:8px 0 16px}
+h1,h2,h3{line-height:1.24;margin:0 0 10px;overflow-wrap:anywhere}
+h1{font-size:clamp(26px,5vw,38px);letter-spacing:-.035em}
+h2{font-size:22px;letter-spacing:-.02em}
+h3{font-size:17px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;min-height:44px;padding:9px 14px;border:1px solid var(--border);border-radius:10px;background:var(--paper);color:var(--ink);transition:transform 140ms ease,background 140ms ease,border-color 140ms ease}
+button:hover:not(:disabled){border-color:var(--input-border)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+.primary:hover:not(:disabled){background:var(--blue-ink);border-color:var(--blue-ink)}
+.quiet{border:0;padding-inline:0;background:transparent;color:var(--muted);font-weight:600}
+.quiet:hover:not(:disabled){color:var(--ink)}
 .back{margin-bottom:16px}
-.badge{background:var(--wash);color:#1749bd;border-radius:8px;padding:4px 9px;font-size:13px;font-weight:650;display:inline-block}
+.badge{background:var(--wash);color:var(--blue-ink);border-radius:8px;padding:4px 9px;font-size:13px;font-weight:650;display:inline-flex;align-items:center;gap:4px}
 .panel{background:var(--paper);border:1px solid var(--border);border-radius:18px;padding:clamp(16px,4vw,28px);margin-bottom:16px}
+.subpanel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0}
 .guide{max-width:640px;margin-inline:auto}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .row.between{justify-content:space-between}
-.property-actions{display:grid;justify-items:center;gap:10px}
+.property-actions{display:grid;gap:10px;margin-top:16px}
+.property-actions .primary{width:100%;min-height:52px}
 .fields{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
 fieldset{margin:14px 0;border:1px solid var(--border);border-radius:12px;padding:10px 14px}
 legend{font-weight:650;padding:0 5px}
-label:not(.inline){display:grid;gap:5px;margin:0 0 12px}
-label.inline{display:inline-flex;align-items:center;gap:7px;min-height:44px}
-input:not([type=checkbox]),select,textarea{min-height:44px;width:100%;min-width:0;padding:8px;border:1px solid #aebed7;border-radius:9px;background:white;color:var(--ink)}
+label:not(.inline){display:grid;gap:5px;margin:0 0 12px;font-weight:600;font-size:15px}
+label.inline{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:600}
+input:not([type=checkbox]),select,textarea{min-height:44px;width:100%;min-width:0;padding:8px 11px;border:1px solid var(--input-border);border-radius:9px;background:var(--paper);color:var(--ink);font-weight:400}
 input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue)}
-.note{background:var(--wash);padding:14px;border-radius:12px;margin:12px 0;overflow-wrap:anywhere}
-.status{min-height:25px;margin-top:8px;color:#1749bd}
+.note{background:var(--wash);padding:14px 16px;border-radius:12px;margin:12px 0;overflow-wrap:anywhere}
+.note p:last-child{margin-bottom:0}
+.status{min-height:25px;margin-top:8px;color:var(--blue-ink)}
 .account-controls{display:flex;align-items:center;gap:10px}
-.account-form{margin-top:18px}
+.account-form{margin-top:16px}
 .sign-in,.sign-in input,.sign-in .choices button{text-align:center}
 .sign-in .row{justify-content:center}
 .sign-in input::placeholder{color:#64748b;opacity:1}
 .sign-in input:focus::placeholder{color:transparent}
 #account-button[hidden]{display:none}
-.account-message{margin:12px 0;overflow-wrap:anywhere}
-#guest-dialog{width:min(calc(100% - 32px),400px);padding:24px;border:1px solid var(--border);border-radius:16px;color:var(--ink)}
-#guest-dialog::backdrop{background:#14244366}
-#guest-dialog .guest-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-#contract-dialog{width:min(calc(100% - 32px),400px);max-width:none;padding:24px;border:1px solid var(--border);border-radius:18px;background:var(--paper);color:var(--ink)}
-#contract-dialog::backdrop{background:#14244366}
-#contract-dialog[open]{animation:arrive 180ms ease-out}
-#contract-dialog .contract-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}
-#contract-dialog .contract-actions button{min-height:48px}
-@media(prefers-reduced-motion:reduce){#contract-dialog[open]{animation:none}}
-.previous-step{margin-top:14px}
+.account-message{margin:12px 0;padding:12px 14px;border-radius:10px;background:#fdf2f3;color:var(--error);border:1px solid #f4cfd3;overflow-wrap:anywhere}
+.or-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--muted);font-size:14px}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+#guest-dialog,#contract-dialog,#reload-dialog{width:min(calc(100% - 32px),400px);max-width:none;padding:24px;border:1px solid var(--border);border-radius:18px;background:var(--paper);color:var(--ink)}
+#guest-dialog::backdrop,#contract-dialog::backdrop,#reload-dialog::backdrop{background:#14244366}
+#contract-dialog[open],#guest-dialog[open],#reload-dialog[open]{animation:arrive 180ms ease-out}
+#guest-dialog .guest-actions,#contract-dialog .contract-actions,#reload-dialog .guest-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}
+#contract-dialog .contract-actions button,#guest-dialog .guest-actions button,#reload-dialog .guest-actions button{min-height:48px}
+.previous-step{margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
 .task-done{position:relative;animation:task-fade 450ms 200ms ease both}
 .task-done::after{content:'🎉';position:absolute;inset:0;display:grid;place-items:center;font-size:32px;pointer-events:none;animation:task-burst 600ms ease-out both}
 @keyframes task-fade{to{opacity:0}}
 @keyframes task-burst{from{opacity:0;transform:scale(.55)}35%{opacity:1;transform:translateY(-5px) scale(1.18)}to{opacity:0;transform:translateY(-22px) scale(1)}}
 .toast:not(:empty){position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);z-index:5;padding:10px 16px;border-radius:10px;background:var(--ink);color:#fff;pointer-events:none}
-.field-error{color:#aa2532;font-size:14px}
-input[aria-invalid=true]{border-color:#aa2532}
-.resume{margin-top:16px}
+.field-error{color:var(--error);font-size:14px;font-weight:500}
+input[aria-invalid=true]{border-color:var(--error)}
+.resume{margin-top:18px;padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
 .resume p{margin:6px 0 0}
-.contract-banner{margin-top:16px;border-inline-start:3px solid var(--blue);padding:12px 14px;background:var(--wash);border-radius:8px}
+.resume button:not(.quiet){width:100%}
+.contract-banner{margin-top:16px;border-inline-start:3px solid var(--blue);padding:12px 14px;background:var(--wash);border-radius:10px}
 .contract-banner p{margin:0 0 8px}
-.compare-table .badge{display:inline-block;margin:4px 0}
-.compare-sheet{box-sizing:border-box;position:fixed;inset:auto 0 0;margin:0 auto;width:min(100%,500px);max-width:none;max-height:85dvh;overflow:auto;padding:20px 20px calc(20px + env(safe-area-inset-bottom));border:1px solid var(--border);border-radius:18px 18px 0 0;background:var(--paper);color:var(--ink)}
-.compare-sheet::backdrop{background:#14244366}
-.compare-sheet[open]{animation:sheet-in 180ms ease-out}
-.compare-sheet form{display:grid;gap:8px}
-.compare-sheet .inline{margin:0}
-@keyframes sheet-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@media(prefers-reduced-motion:reduce){.compare-sheet[open]{animation:none}}
-.task{border-top:1px solid var(--border);padding:8px 0}
-.task p{margin:0 0 5px}
+.task{border-top:1px solid var(--border);padding:10px 0}
+.task:first-of-type{border-top:0}
+.task p{margin:0 0 4px}
 .welcome,.visit,.compare{border:0;padding:0}
-.welcome{max-width:460px;margin:clamp(24px,8vh,78px) auto 40px}
+.welcome{max-width:460px;margin:clamp(16px,6vh,56px) auto 40px}
 .welcome h1{font-size:clamp(30px,7vw,42px);margin-top:0;letter-spacing:-.04em}
 .welcome .muted{margin-bottom:0}
-.choices{display:grid;gap:10px;margin:24px 0 16px}
-.choices button{text-align:left;min-height:58px;padding-inline:17px;border-radius:13px;font-weight:650}
-.choices button:not(.primary){background:#f5f7fa;border-color:transparent}
+.choices{display:grid;gap:10px;margin:22px 0 16px}
+.choices button{text-align:left;min-height:58px;padding-inline:17px;border-radius:13px;font-weight:650;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.choices button:not(.primary){background:var(--surface);border-color:transparent}
+.choices button:not(.primary):hover{background:#ebeff6}
 .choices button:active{transform:scale(.985)}
-.choices button{transition:transform 140ms ease,background 140ms ease}
-.quiet{border:0;padding-inline:0;background:transparent;color:var(--muted)}
-.visit{max-width:520px}
-.visit .context,.compare .context{display:block;margin-top:14px;color:var(--muted)}
-.visit h1{margin-top:4px}
-.visit-progress{margin:24px 0 14px}
-.visit-progress p{margin:0 0 6px;font-size:22px;font-weight:700}
-.visit-progress strong{font-size:32px;color:var(--blue);font-variant-numeric:tabular-nums}
-.visit-progress progress{display:block;width:100%;height:7px;border:0;border-radius:999px;overflow:hidden;appearance:none;background:#edf0f5}
-.visit-progress progress::-webkit-progress-bar{background:#edf0f5}
+.sign-in .choices button{justify-content:center}
+.visit{max-width:560px}
+.visit .context,.compare .context{display:block;margin-top:8px;color:var(--muted)}
+.visit h1{margin-top:6px}
+.summary-strip{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+.visit-progress{margin:0 0 18px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.visit-progress p{margin:0 0 8px;font-size:22px;font-weight:700;display:flex;align-items:baseline;gap:6px}
+.visit-progress strong{font-size:32px;color:var(--blue);font-variant-numeric:tabular-nums;line-height:1}
+.visit-progress progress{display:block;width:100%;height:7px;border:0;border-radius:999px;overflow:hidden;appearance:none;background:#e2e8f2}
+.visit-progress progress::-webkit-progress-bar{background:#e2e8f2}
 .visit-progress progress::-webkit-progress-value{background:var(--blue);border-radius:999px;transition:width 180ms ease}
 .visit-progress progress::-moz-progress-bar{background:var(--blue);border-radius:999px}
 .visit-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.visit fieldset.visit-row{margin:0 0 14px;padding:0;border:0;min-width:0}
+.visit fieldset.visit-row{margin:0 0 14px;padding:0 0 12px;border:0;border-bottom:1px solid var(--border);min-width:0}
+.visit fieldset.visit-row:last-of-type{border-bottom:0;margin-bottom:4px;padding-bottom:0}
 .visit-row legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .visit-row .visit-tip{margin:0 0 6px}
 .visit-row .visit-tip summary{min-height:44px;padding:9px 0}
 .visit-row .visit-tip p{margin:0 0 8px}
-.visit-options label.visit-option{position:relative;display:block;min-width:0;margin:0}
+.visit-options label.visit-option{position:relative;display:block;min-width:0;margin:0;font-weight:400}
 .visit-option input[type=radio]{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
-.visit-option span{display:grid;place-items:center;min-height:44px;padding:5px 2px;border:1px solid var(--border);border-radius:8px;font-size:14px;text-align:center}
-.visit-option input:checked+span{background:var(--wash);border-color:var(--blue);color:#1749bd;font-weight:700}
+.visit-option span{display:grid;place-items:center;min-height:44px;padding:5px 2px;border:1px solid var(--border);border-radius:8px;font-size:14px;text-align:center;background:var(--paper);transition:background 120ms ease,border-color 120ms ease}
+.visit-option input:checked+span{background:var(--wash);border-color:var(--blue);color:var(--blue-ink);font-weight:700}
 .visit-option input:checked[value="미확인"]+span{background:#f1f3f6;border-color:#7d8796;color:var(--ink)}
-.visit-option input:checked[value="문제 있음"]+span{background:#b42330;border-color:#b42330;color:#fff}
+.visit-option input:checked[value="문제 있음"]+span{background:var(--danger);border-color:var(--danger);color:#fff}
 .visit-checklist>summary{font-weight:700}
-.visit-option input:focus-visible+span{outline:3px solid #6d9bff;outline-offset:2px}
+.visit-option input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
 .visit details>label{margin-top:8px}
 .visit form>.primary{width:100%;margin-top:8px}
 .compare{max-width:820px;margin-inline:auto}
 .compare h1{margin-top:4px}
-.listing-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 22px}
+.listing-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 18px}
 .listing-header h1{margin:0;letter-spacing:-.04em}
-.listing-header button{white-space:nowrap;border:0;color:var(--blue);font-weight:750;padding-inline:0}
-.listing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,2vw,16px);margin-top:16px}
-.listing-grid label.listing-card{display:flex;position:relative;margin:0;border:1px solid #cbd0d9;cursor:pointer}
+.listing-header .add-btn{white-space:nowrap;border:1px solid var(--blue);background:var(--wash);color:var(--blue-ink);font-weight:700;padding:8px 14px;border-radius:10px}
+.listing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(10px,2vw,16px);margin-top:16px}
+.listing-grid label.listing-card{display:flex;position:relative;margin:0;border:1px solid var(--border-strong);cursor:pointer}
 .listing-grid label.listing-card:has(input:checked){border-color:var(--blue);background:var(--wash)}
 .listing-card input[type=checkbox]{position:absolute;top:9px;right:9px;margin:0;width:24px;height:24px}
-.listing-delete{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px}
+.listing-delete{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px;padding-top:12px;border-top:1px solid var(--border)}
 .listing-delete .quiet{padding-inline:8px}
 .listing-delete button:disabled{opacity:.5;cursor:default}
-.delete-confirm{background:#b42330;color:#fff;border-color:#b42330;font-weight:700}
-.listing-card{display:flex;flex-direction:column;width:100%;min-width:0;text-align:left;gap:8px;padding:clamp(5px,1.2vw,11px);border-color:#cbd0d9;border-radius:12px}
-.listing-photo{display:grid;place-items:center;width:100%;aspect-ratio:1.55;overflow:hidden;border-radius:8px;background:#f3f5f8;color:var(--muted)}
+.delete-confirm{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:700}
+.listing-card{display:flex;flex-direction:column;width:100%;min-width:0;text-align:left;gap:8px;padding:clamp(6px,1.2vw,11px);border:1px solid var(--border-strong);border-radius:14px;background:var(--paper)}
+.listing-card:hover:not(:disabled){border-color:var(--blue)}
+.listing-photo{display:grid;place-items:center;width:100%;aspect-ratio:1.55;overflow:hidden;border-radius:9px;background:var(--surface-alt);color:var(--muted);font-size:14px}
 .listing-photo img{width:100%;height:100%;object-fit:cover}
 .listing-photo[data-demo]{background-image:url('./jeonse-example-rooms.png');background-size:226% auto;background-repeat:no-repeat}
 .listing-photo[data-demo="a"]{background-position:6% 19.7%}
 .listing-photo[data-demo="b"]{background-position:94.5% 19.7%}
 .listing-photo[data-demo="c"]{background-position:6% 75.8%}
 .listing-photo[data-demo="d"]{background-position:94.5% 75.8%}
-.listing-copy{display:grid;gap:2px;padding:0 3px 4px;overflow-wrap:anywhere;font-size:clamp(13px,3.5vw,18px)}
-.listing-copy strong{font-size:clamp(15px,4vw,22px);line-height:1.25;margin-bottom:4px}
-.compare-table{overflow-x:auto;margin-top:12px}
-.compare-table table{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed}
-.compare-table th,.compare-table td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--border);overflow-wrap:anywhere;vertical-align:middle}
-.compare-table thead th{background:#f5f7fa}
-.compare-table th[scope=row],.compare-table thead th:first-child{position:sticky;left:0;width:100px;background:#fff;z-index:1;color:var(--muted);font-size:14px}
-.compare-table th[scope=col],.compare-table td{width:142px}
-.compare-table th button{background:transparent;border:0;text-align:left;padding:0;width:100%;font-weight:700;overflow-wrap:anywhere}
-.compare-table .row-action{color:#1749bd;font-weight:650;border-color:transparent;padding-inline:0;text-align:left}
-.compare-table small{display:block}
-.compare-empty{padding:24px 0;border-block:1px solid var(--border);color:var(--muted)}
-.location-map{height:330px;margin:16px 0;border-radius:12px;background:#f5f7fa}
+.listing-copy{display:grid;gap:3px;padding:2px 4px 4px;overflow-wrap:anywhere;font-size:clamp(13px,3.5vw,16px)}
+.listing-copy strong{font-size:clamp(15px,4vw,20px);line-height:1.25;margin-bottom:2px}
+.compare-empty{padding:28px 16px;text-align:center;border:1px dashed var(--border-strong);border-radius:14px;color:var(--muted);background:var(--surface)}
+.location-map{height:330px;margin:16px 0;border-radius:12px;background:var(--surface);border:1px solid var(--border)}
 .location-results{padding-left:22px}
 .location-results li{margin-bottom:7px}
-.wizard{max-width:460px;margin:14px auto 38px;padding:0;border:0;animation:arrive 200ms ease-out}
+.wizard{max-width:460px;margin:10px auto 38px;padding:0;border:0;animation:arrive 200ms ease-out}
 body:has(.sign-in){min-height:100svh;display:flex;flex-direction:column}
 body:has(.sign-in)>header{width:100%}
-main:has(.sign-in){width:100%;flex:1;display:grid;align-content:center;padding-block:8px 16px}
+main:has(.sign-in){width:100%;flex:1;display:grid;align-content:center;padding-block:12px 24px}
 main:has(.sign-in)>footer:has(.status:empty){display:none}
 .wizard.sign-in{width:100%;margin:0 auto}
-.sign-in-gap{height:clamp(0px,calc((100svh - 560px) / 4),53px)}
+.sign-in-gap{height:clamp(0px,calc((100svh - 560px) / 4),32px)}
 @media(max-height:620px){
   .sign-in .choices{margin-block:12px 8px}
   .sign-in .account-form{margin-top:8px}
   .sign-in hr{margin-block:12px}
 }
 .wizard h1{margin:10px 0 8px;letter-spacing:-.035em}
-.wizard-icon{font-size:30px;line-height:1;display:block;margin:24px 0 10px}
-.wizard .wizard-main{margin:22px 0 12px}
+.wizard-icon{font-size:30px;line-height:1;display:block;margin:18px 0 10px}
+.wizard .wizard-main{margin:20px 0 12px}
 .wizard .primary{width:100%;min-height:52px}
 .wizard .wizard-skip{display:block;margin:8px auto 0}
-.wizard dl{margin:0 0 20px}
-.wizard dl>div{display:grid;grid-template-columns:110px 1fr;gap:12px;border-bottom:1px solid var(--border);padding:10px 0}
+.wizard dl{margin:0 0 20px;border:1px solid var(--border);border-radius:14px;padding:4px 16px;background:var(--surface)}
+.wizard dl>div{display:grid;grid-template-columns:110px 1fr;gap:12px;border-bottom:1px solid var(--border);padding:11px 0}
+.wizard dl>div:last-child{border-bottom:0}
 .wizard dt{color:var(--muted)}
-.wizard dd{margin:0;overflow-wrap:anywhere}
+.wizard dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.stage-track{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin:14px 0 18px}
+.stage-pip{height:6px;border-radius:999px;background:var(--border)}
+.stage-pip.done{background:#9eb8f7}
+.stage-pip.current{background:var(--blue)}
 .celebration{text-align:center;margin-top:clamp(24px,8vh,72px)}
 .celebration .wizard-icon{font-size:52px;margin:0 auto 18px;animation:celebrate 360ms ease-out}
 .celebration h1{margin:12px 0}
-.celebration .choices button{text-align:center}
+.celebration .choices button{justify-content:center;text-align:center}
 @keyframes celebrate{from{opacity:0;transform:translateY(6px) scale(.85)}to{opacity:1;transform:translateY(0) scale(1)}}
 .compare summary,.visit summary{color:var(--ink)}
 .welcome,.visit,.compare{animation:arrive 180ms ease-out}
 @keyframes arrive{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@media(prefers-reduced-motion:reduce){.welcome,.visit,.compare{animation:none}.choices button,.visit-progress progress::-webkit-progress-value{transition:none}.choices button:active{transform:none}}
-@media(prefers-reduced-motion:reduce){.wizard,.celebration .wizard-icon{animation:none}}
+@media(prefers-reduced-motion:reduce){
+  .welcome,.visit,.compare,.wizard,.celebration .wizard-icon,#contract-dialog[open],#guest-dialog[open],#reload-dialog[open]{animation:none}
+  .choices button,.visit-progress progress::-webkit-progress-value{transition:none}
+  .choices button:active{transform:none}
+}
 details{margin:12px 0}
-summary{color:#1749bd;cursor:pointer;min-height:44px;padding:10px 0;font-weight:650}
-.guide h1{margin-top:16px}
+.section-card{border:1px solid var(--border);border-radius:14px;padding:4px 16px;margin:12px 0;background:var(--paper)}
+.section-card>details{margin:0}
+summary{color:var(--blue-ink);cursor:pointer;min-height:44px;padding:10px 0;font-weight:650}
+.guide h1{margin-top:14px}
 hr{border:0;border-top:1px solid var(--border);margin:20px 0}
-@media(max-width:540px){.row>*{max-width:100%}.guide .primary{width:100%}}
+@media(max-width:540px){
+  .row>*{max-width:100%}
+  .guide .primary{width:100%}
+
+}
+@media(max-width:340px){.listing-grid{grid-template-columns:1fr}}
 </style>
-<header><strong>전세계약 도우미</strong><div class="account-controls"><small id="sync-status" role="status"></small><button type="button" id="account-button">로그인</button></div></header>
+</head>
+<body>
+<header>
+  <button type="button" class="brand" data-action="home-brand">🏠 전세계약 도우미</button>
+  <div class="account-controls">
+    <small id="sync-status" role="status"></small>
+    <button type="button" id="account-button">로그인</button>
+  </div>
+</header>
 <main id="app"></main>
 <div id="save-toast" class="toast" role="status" aria-atomic="true"></div>
 <script>
 const app = document.getElementById('app');
-const saveToast=document.getElementById('save-toast');
-const accountButton=document.getElementById('account-button');
-const syncStatus=document.getElementById('sync-status');
+const saveToast = document.getElementById('save-toast');
+const accountButton = document.getElementById('account-button');
+const syncStatus = document.getElementById('sync-status');
 // 공개 설정만 입력합니다. OAuth 비밀 키와 DB 비밀번호는 Supabase 대시보드에 둡니다.
-const cloudConfig={url:'https://mxukstndvgwdzyuoaphh.supabase.co',publishableKey:'sb_publishable_keX60B0nVskJrqRhdMCe3g_DbM70_dK',kakaoMapKey:''};
+const cloudConfig = {url:'https://mxukstndvgwdzyuoaphh.supabase.co',publishableKey:'sb_publishable_keX60B0nVskJrqRhdMCe3g_DbM70_dK',kakaoMapKey:''};
 let authClient=null, accountUser=null, accountLoading=false, accountBusy=false, accountReady=false;
 let accountError='', accountEmail='', emailForCode='', cloudVersion=null, pendingCloud=null, syncing=false, syncProblem='', accountEpoch=0;
 const cloudConfigured=/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(cloudConfig.url)&&cloudConfig.publishableKey.startsWith('sb_publishable_');
@@ -356,7 +393,6 @@ async function startAuth() {
     });
     authClient=window.supabase.createClient(cloudConfig.url,cloudConfig.publishableKey,{auth:{flowType:'pkce'}});
     authClient.auth.onAuthStateChange((event,session)=>{
-      // 인증 콜백 내부에서 Supabase 요청을 기다리지 않습니다.
       setTimeout(()=>{
         const user=session?.user??null;
         if(event==='INITIAL_SESSION'||user?.id!==accountUser?.id)void loadCloud(user);
@@ -390,8 +426,9 @@ function go(view,id=null) {
   app.querySelector('h1')?.focus();
   window.scrollTo(0,0);
 }
-function action(text, name, primary=false, id='') {
-  return `<button type="button" class="${primary?'primary':''}" data-action="${name}" data-id="${esc(id)}">${text}</button>`;
+function action(text, name, primary=false, id='', extraClass='') {
+  const cls=[primary?'primary':'',extraClass].filter(Boolean).join(' ');
+  return `<button type="button" ${cls?`class="${cls}"`:''} data-action="${name}" data-id="${esc(id)}">${text}</button>`;
 }
 function title(text) {return `<h1 tabindex="-1">${esc(text)}</h1>`;}
 function field(label,name,value,type='text',extra='') {
@@ -406,7 +443,7 @@ function select(label,name,value,options) {
   return `<label>${label}<select name="${name}">${options.map(o=>`<option value="${esc(o)}"${o===value?' selected':''}>${esc(o||'미확인')}</option>`).join('')}</select></label>`;
 }
 function renderResume(item) {
-  if(item.signed)return action(esc(item.name)+' 계약 후 할 일 보기','guide',false,item.id);
+  if(item.signed)return `<div class="resume">${action(esc(item.name)+' 계약 후 할 일 보기','guide',false,item.id)}</div>`;
   let question='전세인가요, 월세인가요?';
   if(item.step>=2)question=labels[item.step];
   else if(item.kind){
@@ -428,10 +465,10 @@ function renderWelcome() {
     ${title('지금 어떤 단계인가요?')}
     <p class="muted">지금 상황을 고르면 다음 할 일을 알려드려요.</p>
     <div class="choices">
-      ${action('집을 알아보고 있어요','search-start',true)}
-      ${action('집을 보러 가요','visit-start')}
-      ${action('계약할 집을 골랐어요','prepare-start')}
-      ${action('계약서를 작성했어요','signed-start')}
+      ${action('<span>집을 알아보고 있어요</span><span aria-hidden="true">→</span>','search-start',true)}
+      ${action('<span>집을 보러 가요</span><span aria-hidden="true">→</span>','visit-start')}
+      ${action('<span>계약할 집을 골랐어요</span><span aria-hidden="true">→</span>','prepare-start')}
+      ${action('<span>계약서를 작성했어요</span><span aria-hidden="true">→</span>','signed-start')}
     </div>
     ${chosen?renderResume(chosen):''}
   </div>`;
@@ -439,7 +476,7 @@ function renderWelcome() {
 function renderPicker() {
   const prompt=intent==='visit'?'어느 집을 보러 가나요?':intent==='prepare'?'어느 집으로 계약을 준비할까요?':'어느 집의 계약서를 작성했나요?';
   return `<div class="panel guide welcome">
-    ${action('← 처음 질문으로','welcome')}
+    <button type="button" class="quiet" data-action="welcome">← 처음 질문으로</button>
     ${title(prompt)}
     <p class="muted">목록에서 집을 고르거나 새로 등록해요.</p>
     <div class="choices">${state.items.map(item=>action(esc(displayName(item)),'pick',false,item.id)).join('')}
@@ -449,8 +486,8 @@ function renderPicker() {
 function renderList() {
   const chosen=state.items.find(item=>item.id===state.chosen);
   return `<section class="compare">
-    <button class="quiet" data-action="welcome">← 처음 질문으로</button>
-    <div class="listing-header">${title(deleteMode?'삭제할 매물 고르기':'집 구하기')}${deleteMode?'':action('+ 매물 등록','add')}</div>
+    <button type="button" class="quiet" data-action="welcome">← 처음 질문으로</button>
+    <div class="listing-header">${title(deleteMode?'삭제할 매물 고르기':'집 구하기')}${deleteMode?'':action('+ 매물 등록','add',false,'','add-btn')}</div>
     ${state.items.length?`
       <div class="listing-grid" aria-label="후보 매물">${state.items.map(renderListingCard).join('')}</div>`:
       '<p class="compare-empty">등록한 매물이 없어요. 관심 있는 집을 찾으면 첫 매물을 등록해 보세요.</p>'}
@@ -506,7 +543,7 @@ async function saveListingPhoto(item,form,file) {
 function locationControls(item,wizard=false) {
   if(!cloudConfig.kakaoMapKey||location.protocol==='file:'){
     return `<form data-form="save-manual-address">
-      ${field('매물 주소','address',item.address,'text','required maxlength="160"')}
+      ${field('매물 주소','address',item.address,'text','required maxlength="160" placeholder="예: 서울 마포구 성산동 123-4"')}
       <button class="primary">${wizard?'다음':'주소 저장'}</button>
     </form>`;
   }
@@ -522,10 +559,13 @@ function locationControls(item,wizard=false) {
   <button type="button" class="primary" data-action="save-location" hidden>${wizard?'이 위치로 선택':'이 위치와 주변 거리 저장'}</button>`;
 }
 function renderLocation(item) {
-  return `<div class="panel guide">${action('← 방문 기록','detail',false,item.id)}
-  ${title(displayName(item)+' 위치')}
-  <p class="muted">지번이나 도로명 주소를 기록할 수 있어요.</p>
-  ${locationControls(item)}</div>`;
+  return `<div class="panel guide">
+    <button type="button" class="quiet" data-action="detail" data-id="${esc(item.id)}">← 방문 기록</button>
+    <div style="margin-top:8px"><span class="badge">${esc(displayName(item))}</span></div>
+    <h1 tabindex="-1" style="margin-top:10px">${esc(displayName(item)+' 위치')}</h1>
+    <p class="muted">지번이나 도로명 주소를 기록할 수 있어요.</p>
+    <div class="subpanel">${locationControls(item)}</div>
+  </div>`;
 }
 function registrationSteps() {
   return ['name','address','kind','deposit',...(registration.kind==='월세'?['rent']:[]),'photo','review'];
@@ -562,7 +602,7 @@ function renderRegistration() {
   ];
   const content=step==='address'?locationControls(registration,true):
     step==='kind'?`<div class="choices">${action('전세','registration-kind',registration.kind==='전세','전세')}${action('월세','registration-kind',registration.kind==='월세','월세')}</div>`:
-    step==='photo'?`${registration.photo?`<span class="listing-photo"><img src="${registration.photo}" alt="선택한 대표 사진"></span>`:''}
+    step==='photo'?`${registration.photo?`<span class="listing-photo" style="margin-bottom:14px"><img src="${registration.photo}" alt="선택한 대표 사진"></span>`:''}
       <div class="choices">
         ${action('카메라로 직접 찍기','registration-photo',true,'camera')}
         ${action('사진 등록하기','registration-photo',false,'album')}
@@ -576,13 +616,13 @@ function renderRegistration() {
       ?field('매물 이름','value',registration.name,'text','required maxlength="60" placeholder="예: 햇빛 잘 드는 원룸"')
       :amountField((step==='deposit'?'보증금':'월세')+' (만 원)','value',registration[step],true)}
       <button class="primary">다음</button></form>`;
-  return `<section class="wizard">
-    <small class="context">매물 등록 · ${steps.indexOf(step)+1}단계</small>
+  return `<section class="wizard panel">
+    <span class="badge">매물 등록 · ${steps.indexOf(step)+1}/${steps.length}단계</span>
     <span class="wizard-icon" aria-hidden="true">${icon}</span>
     ${title(question)}<p class="muted">${help}</p>
     <div class="wizard-main">${content}</div>
-    ${step!=='review'?`<button class="quiet wizard-skip" data-action="registration-skip">${step==='photo'?'사진은 나중에 등록할게요':'아직 몰라요'}</button>`:''}
-    <div class="previous-step"><button class="quiet" data-action="registration-back">← 뒤로</button></div>
+    ${step!=='review'?`<button type="button" class="quiet wizard-skip" data-action="registration-skip">${step==='photo'?'사진은 나중에 등록할게요':'아직 몰라요'}</button>`:''}
+    <div class="previous-step"><button type="button" class="quiet" data-action="registration-back">← 뒤로</button></div>
   </section>`;
 }
 function nextCandidateName() {
@@ -700,36 +740,49 @@ async function lookupLocation({query,pin}={}) {
   }
 }
 function renderDetail(item) {
-  const memo=`<form data-form="visit-memo"><label>방문 메모<textarea name="note" rows="2" maxlength="1000">${esc(item.note)}</textarea></label><button>메모 저장</button></form>`;
+  const memo=`<form data-form="visit-memo"><label>방문 메모<textarea name="note" rows="2" maxlength="1000" placeholder="집을 보며 느낀 점을 적어 보세요.">${esc(item.note)}</textarea></label><button>메모 저장</button></form>`;
   const visitRows=checks.map(([key,label,tip])=>`<fieldset class="visit-row"><legend>${label}</legend>
     <details class="visit-tip"><summary aria-label="${label} 확인 방법">${label}</summary><p class="muted">${tip}</p></details>
     <div class="visit-options">${results.map(result=>`<label class="visit-option"><input type="radio" name="${key}" value="${result}" data-visit-check${result===(item.checks[key]||'미확인')?' checked':''}><span>${result}</span></label>`).join('')}</div>
   </fieldset>`).join('');
-  return `<div class="panel guide visit"><button class="quiet" data-action="list">← 후보 목록</button>
+  const rentSummary=item.kind==='전세'?'전세':item.kind==='월세'?'월세 '+money(item.rent):'계약 유형 미확인';
+  return `<div class="panel guide visit">
+  <button type="button" class="quiet" data-action="list">← 후보 목록</button>
   <small class="context">${esc(displayName(item))}</small>
   ${title('집 방문 체크리스트')}
+  <div class="summary-strip">
+    <span class="badge">${rentSummary}</span>
+    <span class="badge">보증금 ${money(item.deposit)}</span>
+    ${item.address?`<span class="badge">${esc(item.address)}</span>`:''}
+  </div>
   ${visitProgress(item)}
-  <details class="visit-checklist" open><summary>점검 항목 보기</summary>
-    <p class="muted">항목 이름을 누르면 확인 방법을 볼 수 있어요.</p>
-    ${visitRows}
-  </details>
-  ${item.note.trim()?memo:`<details><summary>방문 메모 남기기</summary>${memo}</details>`}
-  <details><summary>매물 정보 수정하기</summary><form data-form="property"><div class="fields">
-    ${field('매물 이름','name',item.name,'text','required maxlength="60"')}
-    ${field('별명 (선택)','nickname',item.nickname,'text','maxlength="40" placeholder="예: 햇빛 잘 드는 집"')}
-    ${select('계약 유형','kind',item.kind,['','전세','월세'])}
-    ${amountField('보증금 (만 원)','deposit',item.deposit)}
-    ${amountField('월세 (만 원)','rent',item.rent)}
-    ${field('주소 또는 위치 메모','address',item.address,'text','maxlength="160"')}
-  </div><button>매물 정보 저장</button></form></details>
-  <details><summary>대표 사진 등록하기</summary>
-    <form data-form="listing-photo">
-      <label>매물 사진<input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label>
-      <button>사진 저장</button><p class="field-error" data-photo-error role="alert"></p>
-    </form>
-  </details>
-  <details><summary>매물 위치</summary>${action(item.location?'지도 보기':'지도 위치 등록하기','location',false,item.id)}</details>
-  <hr><div class="property-actions">
+  <div class="section-card">
+    <details class="visit-checklist" open><summary>점검 항목 보기</summary>
+      <p class="muted">항목 이름을 누르면 확인 방법을 볼 수 있어요.</p>
+      ${visitRows}
+    </details>
+  </div>
+  <div class="section-card">
+    ${item.note.trim()?`<div style="padding:10px 0">${memo}</div>`:`<details><summary>방문 메모 남기기</summary>${memo}</details>`}
+  </div>
+  <div class="section-card">
+    <details><summary>매물 정보 수정하기</summary><form data-form="property"><div class="fields">
+      ${field('매물 이름','name',item.name,'text','required maxlength="60"')}
+      ${field('별명 (선택)','nickname',item.nickname,'text','maxlength="40" placeholder="예: 햇빛 잘 드는 집"')}
+      ${select('계약 유형','kind',item.kind,['','전세','월세'])}
+      ${amountField('보증금 (만 원)','deposit',item.deposit)}
+      ${amountField('월세 (만 원)','rent',item.rent)}
+      ${field('주소 또는 위치 메모','address',item.address,'text','maxlength="160"')}
+    </div><button>매물 정보 저장</button></form></details>
+    <details><summary>대표 사진 등록하기</summary>
+      <form data-form="listing-photo">
+        <label>매물 사진<input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label>
+        <button>사진 저장</button><p class="field-error" data-photo-error role="alert"></p>
+      </form>
+    </details>
+    <details><summary>매물 위치</summary>${action(item.location?'지도 보기':'지도 위치 등록하기','location',false,item.id)}</details>
+  </div>
+  <div class="property-actions">
     ${action(item.signed?'계약 후 할 일 보기':'이 집으로 계약할게요',item.signed||state.chosen===item.id?'guide':'choose',true,item.id)}
     ${!item.signed?action('이미 계약서를 작성했어요','record-signed',false,item.id):''}
   </div>
@@ -744,7 +797,7 @@ function checkedCount(item) {
 }
 function visitProgress(item) {
   const count=checkedCount(item);
-  return `<div class="visit-progress"><p aria-live="polite"><strong data-visit-count>${count}</strong> / ${checks.length} 확인</p>
+  return `<div class="visit-progress"><p aria-live="polite"><strong data-visit-count>${count}</strong> <span>/ ${checks.length} 확인</span></p>
     <progress value="${count}" max="${checks.length}" aria-label="방문 점검 진행률"></progress></div>`;
 }
 function questions(item) {
@@ -792,12 +845,14 @@ function renderPreparation(item) {
   const isDate=question.id==='date';
   const waiting=item.prepWaiting===question.id;
   const repair=question.id==='repair';
-  return `<section class="wizard">
-    <button class="quiet" data-action="list">후보 목록</button>
-    <small>${esc(displayName(item))} · 계약 준비 · ${index+1}/${steps.length}</small>
+  return `<section class="wizard panel">
+    <div class="row between">
+      <button type="button" class="quiet" data-action="list">← 후보 목록</button>
+      <span class="badge">${esc(displayName(item))} · ${index+1}/${steps.length}</span>
+    </div>
     <span class="wizard-icon" aria-hidden="true">${question.icon}</span>
     ${title(question.title)}
-    ${question.id==='register'?action('📷 등기사항증명서 사진 분석','registry-scan',true,item.id):''}
+    ${question.id==='register'?`<div style="margin:14px 0 4px">${action('📷 등기사항증명서 사진 분석','registry-scan',true,item.id)}</div>`:''}
     ${question.id==='register'?`<details>
       <summary>등기사항증명서가 뭔가요?</summary>
       <p>흔히 등기부등본이라고 부르는 서류예요. 집의 주소와 소유자, 집에 설정된 권리를 확인할 수 있어요.</p>
@@ -810,19 +865,20 @@ function renderPreparation(item) {
     ${isDate?`<p class="muted">${question.help}</p><form data-form="date">
       ${field('예정 계약일','date',item.date,'date','required')}<button class="primary">날짜 저장</button>
     </form>
-    ${item.date?action('계약 당일 확인할 일 보기','prep-finish',true):''}
-    <button class="quiet wizard-skip" data-action="prep-later">아직 날짜가 안 정해졌어요</button>
-    ${!item.date?action('계약 당일 안내 미리 보기','prep-finish'):''}`:
+    ${item.date?`<div style="margin-top:10px">${action('계약 당일 확인할 일 보기','prep-finish',true)}</div>`:''}
+    <button type="button" class="quiet wizard-skip" data-action="prep-later">아직 날짜가 안 정해졌어요</button>
+    ${!item.date?`<div style="margin-top:8px">${action('계약 당일 안내 미리 보기','prep-finish')}</div>`:''}`:
     `<div class="choices">${action('확인했어요','prep-confirm',true)}${action('아직 확인하지 못했어요','prep-help')}</div>
     ${waiting?`<div class="note"><h3>이렇게 확인해 보세요</h3><p>${esc(question.help)}</p></div>`:''}
     ${repair?`<div class="note"><h3>집주인에게 물어볼 질문</h3>${questions(item).map(line=>`<p>${esc(line)}</p>`).join('')}${item.note?`<small>내 방문 기록 · ${esc(item.note)}</small>`:''}</div>
     <details${item.reply?' open':''}><summary>받은 답변 기록하기</summary><form data-form="reply"><label>집주인 답변<textarea name="reply" rows="2" maxlength="1000">${esc(item.reply)}</textarea></label><button>답변 저장</button></form></details>`:''}
-    ${waiting?action('확인하고 나중에 이어하기','prep-later'):''}`}
-    ${index>0?`<div class="previous-step"><button class="quiet" data-action="prep-back">← 이전 질문</button></div>`:''}
+    ${waiting?`<div style="margin-top:10px">${action('확인하고 나중에 이어하기','prep-later')}</div>`:''}`}
+    ${index>0?`<div class="previous-step"><button type="button" class="quiet" data-action="prep-back">← 이전 질문</button></div>`:''}
   </section>`;
 }
 function renderGuide(item) {
-  if(!item.kind)return `<section class="wizard">${action('← 후보 목록','list')}
+  if(!item.kind)return `<section class="wizard panel">
+    <button type="button" class="quiet" data-action="list">← 후보 목록</button>
     ${title('전세인가요, 월세인가요?')}<p class="muted">계약 유형에 맞는 준비를 안내해요.</p>
     <div class="choices">${action('전세','guide-kind',true,'전세')}${action('월세','guide-kind',false,'월세')}</div>
     ${action('아직 몰라요','detail',false,item.id)}</section>`;
@@ -836,71 +892,78 @@ function renderGuide(item) {
     [['recheck','잔금 전 권리관계를 다시 확인했어요',''],['keys','열쇠를 받고 집 상태를 기록했어요','']],
     [['moveReport','전입신고 결과를 확인했어요',''],['condition','입주 후 하자를 기록했어요',''],['guarantee','해당되는 보증 절차를 확인했어요','']]
   ][step];
+  const pips=stageNames.map((_,idx)=>`<span class="stage-pip ${idx<step?'done':idx===step?'current':''}"></span>`).join('');
   return `<div class="panel guide">
-  ${action('← 후보 목록','list')} <span class="badge">${esc(item.name)} · ${stageNames[step]}</span>
+  <div class="row between">
+    <button type="button" class="quiet" data-action="list">← 후보 목록</button>
+    <span class="badge">${esc(item.name)} · ${stageNames[step]}</span>
+  </div>
+  <div class="stage-track" aria-hidden="true">${pips}</div>
   ${title(labels[step])}
-  ${taskList(item,tasks)}
-  ${step===2?`<hr><p>비교할 때 적은 조건 · 보증금 ${money(item.deposit)}${item.kind==='월세'?' / 월 '+money(item.rent):''}</p>
-  ${item.reply?`<div class="note">집주인 답변 · ${esc(item.reply)}</div>`:''}
+  <div class="subpanel">${taskList(item,tasks)}</div>
+  ${step===2?`<div class="note"><p>비교할 때 적은 조건 · 보증금 ${money(item.deposit)}${item.kind==='월세'?' / 월 '+money(item.rent):''}</p>
+  ${item.reply?`<p>집주인 답변 · ${esc(item.reply)}</p>`:''}</div>
   <form data-form="signed"><div class="fields">
   ${field('실제 계약일','signed',item.signed||item.date,'date','required')}
   ${amountField('최종 보증금 (만 원)','finalDeposit',item.finalDeposit||item.deposit,true)}
   ${item.kind==='월세'?amountField('최종 월세 (만 원)','finalRent',item.finalRent||item.rent,true)+field('월세 납부일 (매월)','payday',item.payday,'number','min="1" max="31" required'):''}
   ${field('잔금일','balance',item.balance,'date')}
-  </div><button class="primary">계약서를 작성했어요</button></form>`:''}
+  </div><button class="primary" style="width:100%;min-height:52px">계약서를 작성했어요</button></form>`:''}
   ${step>=4&&item.signed?`<p class="muted">계약일 ${esc(item.signed)} · 잔금일 ${esc(item.balance||'미입력')}</p>`:''}
-  ${step===4?`<form data-form="move">${field('실제 입주일','move',item.move,'date')}<button>입주일 저장</button></form>`:''}
-  ${step>=4&&(!item.done.report||!item.done.fixed)?`<div class="note">계약 직후에 남은 항목이 있어요. ${action('다시 확인하기','post')}</div>`:''}
-  <hr><div class="row">
+  ${step===4?`<div class="subpanel"><form data-form="move">${field('실제 입주일','move',item.move,'date')}<button>입주일 저장</button></form></div>`:''}
+  ${step>=4&&(!item.done.report||!item.done.fixed)?`<div class="note"><p>계약 직후에 남은 항목이 있어요.</p><div style="margin-top:8px">${action('다시 확인하기','post')}</div></div>`:''}
+  <div class="row" style="margin-top:18px">
   ${step===3||step===4?action(step===3?'잔금·입주 준비 보기':'입주 후 할 일 보기','next',true):''}
   ${step===5?action('후보 목록으로','list',true):''}
-  </div><div class="previous-step"><button class="quiet" data-action="prev">← 이전 단계</button></div></div>`;
+  </div><div class="previous-step"><button type="button" class="quiet" data-action="prev">← 이전 단계</button></div></div>`;
 }
 function renderCelebration(item) {
-  return `<section class="wizard celebration">
+  return `<section class="wizard panel celebration">
     <span class="wizard-icon" aria-hidden="true">🎉</span>
-    <small>${esc(displayName(item))}</small>
+    <span class="badge">${esc(displayName(item))}</span>
     ${title('계약을 마쳤어요!')}
     <p class="muted">집을 고르고 계약서까지 작성했네요. 축하해요!</p>
     <div class="choices">${action('계약 후 할 일 보기','guide',true,item.id)}</div>
-    <button class="quiet" data-action="list">오늘은 여기까지</button>
+    <button type="button" class="quiet" data-action="list">오늘은 여기까지</button>
   </section>`;
 }
 function renderAccount() {
   const available=!!authClient;
-  return `<section class="wizard${accountUser?'':' sign-in'}">
-    ${accountReturn&&(!accountUser||accountReady)?action('← 돌아가기','account-back'):''}
+  return `<section class="wizard panel${accountUser?'':' sign-in'}">
+    ${accountReturn&&(!accountUser||accountReady)?`<div style="text-align:left;margin-bottom:8px"><button type="button" class="quiet" data-action="account-back">← 돌아가기</button></div>`:''}
     ${title(accountUser?'내 계정':'어떻게 로그인할까요?')}
     ${accountError?`<p class="account-message" role="alert">${esc(accountError)}</p>`:''}
-    ${accountUser?`<p>${esc(accountUser.email||'로그인한 계정')}</p>
-      ${accountReady?'<p class="muted">같은 계정으로 다른 기기에서도 기록을 이어서 볼 수 있어요.</p>':
-        action('기록 다시 불러오기','cloud-reload',true)}
+    ${accountUser?`<div class="subpanel"><p style="margin:0 0 4px"><strong>${esc(accountUser.email||'로그인한 계정')}</strong></p>
+      ${accountReady?'<p class="muted" style="margin:0">같은 계정으로 다른 기기에서도 기록을 이어서 볼 수 있어요.</p>':
+        action('기록 다시 불러오기','cloud-reload',true)}</div>
       ${accountReady&&!guestImport&&readGuestSearch().items.length?`<div class="note"><p>이 기기에 비회원으로 저장한 매물이 있어요.</p>
-        ${action('비회원 기록을 내 계정에 옮기기','import-guest',true)}</div>`:''}
+        <div style="margin-top:10px">${action('비회원 기록을 내 계정에 옮기기','import-guest',true)}</div></div>`:''}
       ${syncProblem?`<div class="note"><h3>계정에 저장하지 못했어요</h3>
         <p>${syncProblem==='conflict'?'다른 기기의 새 기록을 확인했어요. 이 기기의 변경 사항이 서버 기록을 덮어쓰지 않도록 저장을 멈췄어요.':'연결을 확인하고 다시 저장해 주세요.'}</p>
-        ${syncProblem==='network'?action('다시 저장','cloud-retry',true):''}
-        ${action('서버 기록 불러오기','cloud-reload')}</div>`:''}
-      <div class="row">${accountReady?action('집 구하기 이어가기','welcome'):''}${action('로그아웃','sign-out')}</div>`:
+        <div class="row" style="margin-top:10px">${syncProblem==='network'?action('다시 저장','cloud-retry',true):''}
+        ${action('서버 기록 불러오기','cloud-reload')}</div></div>`:''}
+      <div class="row" style="margin-top:16px">${accountReady?action('집 구하기 이어가기','welcome',true):''}${action('로그아웃','sign-out')}</div>
+      <dialog id="reload-dialog" aria-labelledby="reload-title"><h2 id="reload-title">서버 기록을 불러올까요?</h2><p class="muted">이 기기에서 아직 저장되지 않은 변경 사항을 버리고 서버 기록을 불러와요.</p><div class="guest-actions">${action('불러오기','reload-confirm',true)}${action('취소','reload-cancel')}</div></dialog>`:
     `<p class="muted">로그인하면 휴대폰과 PC에서 같은 기록을 볼 수 있어요.</p>
       ${!available?'<div class="sign-in-gap" aria-hidden="true"></div>':''}
       ${emailForCode?`<form class="account-form" data-form="verify-code">
-        <p>인증코드를 보낸 주소 · ${esc(emailForCode)}</p>
-        ${field('이메일 인증코드','code','','text','required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"')}
+        <div class="note"><p>인증코드를 보낸 주소 · <strong>${esc(emailForCode)}</strong></p></div>
+        ${field('이메일 인증코드','code','','text','required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6자리 숫자"')}
         <button class="primary" ${accountBusy?'disabled':''}>코드 확인</button>
       </form>
-      <div class="row">${action('코드 다시 받기','resend-code')}${action('이메일 바꾸기','change-email')}</div>`:
+      <div class="row" style="margin-top:12px">${action('코드 다시 받기','resend-code')}${action('이메일 바꾸기','change-email')}</div>`:
       `<div class="choices">
-        <button data-action="social-login" ${!available||accountBusy?'disabled':''}>Google로 계속하기</button>
+        <button type="button" data-action="social-login" ${!available||accountBusy?'disabled':''}>Google로 계속하기</button>
       </div>
       <form class="account-form" data-form="email-code">
         <label><input type="email" name="email" value="${esc(accountEmail)}" aria-label="이메일" placeholder="이메일을 입력하세요." required maxlength="254" autocomplete="email"></label>
         <button class="primary" ${!available||accountBusy?'disabled':''}>이메일로 코드 받기</button>
       </form>`}
-      <hr>${action('비회원으로 계속하기','guest-dialog')}
+      <div class="or-divider">또는</div>
+      ${action('비회원으로 계속하기','guest-dialog',false,'','quiet')}
       <dialog id="guest-dialog" aria-labelledby="guest-title">
         <h2 id="guest-title">비회원으로 계속할까요?</h2>
-        <p>진행 기록이 이 디바이스에 저장됩니다.</p>
+        <p class="muted">진행 기록이 이 디바이스에 저장됩니다.</p>
         <div class="guest-actions">${action('확인','guest-confirm',true)}${action('취소','guest-cancel')}</div>
       </dialog>
     `}
@@ -958,16 +1021,19 @@ function importGuestSearch() {
   render();
 }
 function renderRegistryScan(item) {
-  return `<section class="wizard">
-    <small>${esc(displayName(item))} · 계약 준비</small>
+  return `<section class="wizard panel">
+    <span class="badge">${esc(displayName(item))} · 계약 준비</span>
+    <span class="wizard-icon" aria-hidden="true">📄</span>
     ${title('등기사항증명서 사진 분석')}
-    <p>한 페이지가 선명하게 보이는 사진을 골라요. 사진은 이 브라우저에서 읽어요. 처음 실행할 때 한글 인식 도구를 내려받기 위해 인터넷 연결이 필요해요.</p>
-    <form data-form="registry-scan">
-      <label>등기사항증명서 사진<input type="file" name="image" accept="image/jpeg,image/png,image/webp" required></label>
-      <button class="primary">사진 분석하기</button>
-    </form>
+    <p class="muted">한 페이지가 선명하게 보이는 사진을 골라요. 사진은 이 브라우저에서 읽어요. 처음 실행할 때 한글 인식 도구를 내려받기 위해 인터넷 연결이 필요해요.</p>
+    <div class="subpanel">
+      <form data-form="registry-scan">
+        <label>등기사항증명서 사진<input type="file" name="image" accept="image/jpeg,image/png,image/webp" required></label>
+        <button class="primary">사진 분석하기</button>
+      </form>
+    </div>
     <div data-scan-result role="status" aria-live="polite"></div>
-    <div class="previous-step">${action('← 등기 확인으로 돌아가기','guide',false,item.id)}</div>
+    <div class="previous-step"><button type="button" class="quiet" data-action="guide" data-id="${esc(item.id)}">← 등기 확인으로 돌아가기</button></div>
   </section>`;
 }
 const registryTerms=[
@@ -1042,19 +1108,23 @@ async function scanRegistry(form,values) {
 function render() {
   const item=state.items.find(p=>p.id===active);
   updateAccountControls();
-  if(accountLoading) app.innerHTML='<section class="wizard"><h1>기록을 불러오고 있어요</h1></section>';
+  if(accountLoading) app.innerHTML='<section class="wizard panel"><h1>기록을 불러오고 있어요</h1></section>';
   else if(screen==='account'||(accountUser&&!accountReady)) app.innerHTML=renderAccount();
   else if(screen==='registration') app.innerHTML=renderRegistration();
   else if(screen==='registry-scan'&&item) app.innerHTML=renderRegistryScan(item);
   else if(screen==='location'&&item) app.innerHTML=renderLocation(item);
   else if(screen==='welcome') app.innerHTML=renderWelcome();
   else if(screen==='picker') app.innerHTML=renderPicker();
-  else if(screen==='detail') app.innerHTML=renderDetail(item);
+  else if(screen==='detail'&&item) app.innerHTML=renderDetail(item);
   else if(screen==='celebration'&&item) app.innerHTML=renderCelebration(item);
   else if(screen==='guide'&&item) app.innerHTML=renderGuide(item);
   else app.innerHTML=renderList();
   app.insertAdjacentHTML('beforeend',`<footer><div class="status" role="status">${saveError?'이 브라우저에 저장할 수 없어요.':''}</div></footer>`);
 }
+document.querySelector('header').addEventListener('click',event=>{
+  const btn=event.target.closest('[data-action="home-brand"]');
+  if(btn&&screen!=='account'&&!accountLoading)go('welcome');
+});
 accountButton.addEventListener('click',()=>{
   if(accountLoading||screen==='account')return;
   accountReturn={screen,id:active};
@@ -1108,8 +1178,10 @@ app.addEventListener('click',event=>{
     case 'cloud-retry': syncProblem='';void syncCloud();render();break;
     case 'cloud-reload':
       if(!accountUser||syncing)break;
-      if(pendingCloud&&!confirm('이 기기에서 아직 저장되지 않은 변경 사항을 버리고 서버 기록을 불러올까요?'))break;
+      if(pendingCloud){app.querySelector('#reload-dialog')?.showModal();break;}
       void loadCloud(accountUser);break;
+    case 'reload-cancel': app.querySelector('#reload-dialog')?.close();break;
+    case 'reload-confirm': app.querySelector('#reload-dialog')?.close();void loadCloud(accountUser);break;
     case 'sign-out':
       if(pendingCloud||syncing){
         accountError='저장 중인 변경 사항이 있어요. 저장 결과를 먼저 확인해 주세요.';
@@ -1290,7 +1362,7 @@ app.addEventListener('change',event=>{
           const message=document.createElement('p');
           message.className='muted';
           message.textContent='이 단계에서 확인할 일을 모두 마쳤어요.';
-          container.querySelector('h1').after(message);
+          container.append(message);
         }
       };
       if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)remove();
@@ -1364,4 +1436,5 @@ app.addEventListener('submit',event=>{
 render();
 void startAuth();
 </script>
+</body>
 </html>
