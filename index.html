@@ -63,6 +63,8 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue)}
 .status{min-height:25px;margin-top:8px;color:var(--blue-ink)}
 .account-controls{display:flex;align-items:center;gap:10px}
 .account-form{margin-top:16px}
+.account-form label+label{margin-top:8px}
+.account-password-note{margin:10px 0 0;font-size:.89rem}
 .sign-in,.sign-in input,.sign-in .choices button{text-align:center}
 .sign-in .row{justify-content:center}
 .sign-in input::placeholder{color:#64748b;opacity:1}
@@ -229,7 +231,7 @@ const syncStatus = document.getElementById('sync-status');
 // 공개 설정만 입력합니다. OAuth 비밀 키와 DB 비밀번호는 Supabase 대시보드에 둡니다.
 const cloudConfig = {url:'https://mxukstndvgwdzyuoaphh.supabase.co',publishableKey:'sb_publishable_keX60B0nVskJrqRhdMCe3g_DbM70_dK',kakaoMapKey:''};
 let authClient=null, accountUser=null, accountLoading=false, accountBusy=false, accountReady=false;
-let accountError='', accountEmail='', emailForCode='', cloudVersion=null, pendingCloud=null, syncing=false, syncProblem='', accountEpoch=0;
+let accountError='', accountEmail='', accountNotice='', cloudVersion=null, pendingCloud=null, syncing=false, syncProblem='', accountEpoch=0;
 const cloudConfigured=/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(cloudConfig.url)&&cloudConfig.publishableKey.startsWith('sb_publishable_');
 let toastTimer;
 function showToast(message) {
@@ -344,6 +346,7 @@ async function syncCloud() {
 async function loadCloud(user) {
   const epoch=++accountEpoch;
   accountUser=user;
+  accountNotice='';
   accountReady=false;
   accountLoading=!!user;
   syncing=false;
@@ -927,15 +930,28 @@ function renderCelebration(item) {
     <button type="button" class="quiet" data-action="list">오늘은 여기까지</button>
   </section>`;
 }
+function canSetAccountPassword() {
+  return Boolean(accountUser?.email && accountUser.identities?.some(identity => identity.provider === 'google'));
+}
 function renderAccount() {
   const available=!!authClient;
   return `<section class="wizard panel${accountUser?'':' sign-in'}">
     ${accountReturn&&(!accountUser||accountReady)?`<div style="text-align:left;margin-bottom:8px"><button type="button" class="quiet" data-action="account-back">← 돌아가기</button></div>`:''}
     ${title(accountUser?'내 계정':'어떻게 로그인할까요?')}
     ${accountError?`<p class="account-message" role="alert">${esc(accountError)}</p>`:''}
+    ${accountNotice?`<p class="account-message" role="status">${esc(accountNotice)}</p>`:''}
     ${accountUser?`<div class="subpanel"><p style="margin:0 0 4px"><strong>${esc(accountUser.email||'로그인한 계정')}</strong></p>
       ${accountReady?'<p class="muted" style="margin:0">같은 계정으로 다른 기기에서도 기록을 이어서 볼 수 있어요.</p>':
         action('기록 다시 불러오기','cloud-reload',true)}</div>
+      ${canSetAccountPassword()?`<details class="section-card">
+        <summary>이메일 로그인용 비밀번호 설정</summary>
+        <p class="muted">비밀번호를 설정하면 이 계정의 이메일로도 로그인할 수 있어요. 12자 이상으로 정해 주세요.</p>
+        <form class="account-form" data-form="set-account-password">
+          ${field('새 비밀번호','newPassword','','password','required minlength="12" maxlength="72" autocomplete="new-password"')}
+          ${field('새 비밀번호 확인','confirmPassword','','password','required minlength="12" maxlength="72" autocomplete="new-password"')}
+          <button class="primary" type="submit" ${accountBusy?'disabled':''}>비밀번호 저장</button>
+        </form>
+      </details>`:''}
       ${accountReady&&!guestImport&&readGuestSearch().items.length?`<div class="note"><p>이 기기에 비회원으로 저장한 매물이 있어요.</p>
         <div style="margin-top:10px">${action('비회원 기록을 내 계정에 옮기기','import-guest',true)}</div></div>`:''}
       ${syncProblem?`<div class="note"><h3>계정에 저장하지 못했어요</h3>
@@ -946,19 +962,15 @@ function renderAccount() {
       <dialog id="reload-dialog" aria-labelledby="reload-title"><h2 id="reload-title">서버 기록을 불러올까요?</h2><p class="muted">이 기기에서 아직 저장되지 않은 변경 사항을 버리고 서버 기록을 불러와요.</p><div class="guest-actions">${action('불러오기','reload-confirm',true)}${action('취소','reload-cancel')}</div></dialog>`:
     `<p class="muted">로그인하면 휴대폰과 PC에서 같은 기록을 볼 수 있어요.</p>
       ${!available?'<div class="sign-in-gap" aria-hidden="true"></div>':''}
-      ${emailForCode?`<form class="account-form" data-form="verify-code">
-        <div class="note"><p>인증코드를 보낸 주소 · <strong>${esc(emailForCode)}</strong></p></div>
-        ${field('이메일 인증코드','code','','text','required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6자리 숫자"')}
-        <button class="primary" ${accountBusy?'disabled':''}>코드 확인</button>
-      </form>
-      <div class="row" style="margin-top:12px">${action('코드 다시 받기','resend-code')}${action('이메일 바꾸기','change-email')}</div>`:
-      `<div class="choices">
+      <div class="choices">
         <button type="button" data-action="social-login" ${!available||accountBusy?'disabled':''}>Google로 계속하기</button>
       </div>
-      <form class="account-form" data-form="email-code">
-        <label><input type="email" name="email" value="${esc(accountEmail)}" aria-label="이메일" placeholder="이메일을 입력하세요." required maxlength="254" autocomplete="email"></label>
-        <button class="primary" ${!available||accountBusy?'disabled':''}>이메일로 코드 받기</button>
-      </form>`}
+      <form class="account-form" data-form="email-password">
+        <label><input type="email" name="email" value="${esc(accountEmail)}" aria-label="이메일" placeholder="이메일을 입력하세요." required maxlength="254" autocomplete="username"></label>
+        <label><input type="password" name="password" aria-label="비밀번호" placeholder="비밀번호를 입력하세요." required autocomplete="current-password"></label>
+        <button class="primary" type="submit" ${!available||accountBusy?'disabled':''}>이메일로 로그인</button>
+      </form>
+      <p class="muted account-password-note">처음이라면 Google로 시작하고, 내 계정에서 비밀번호를 설정할 수 있어요.</p>
       <div class="or-divider">또는</div>
       ${action('비회원으로 계속하기','guest-dialog',false,'','quiet')}
       <dialog id="guest-dialog" aria-labelledby="guest-title">
@@ -973,6 +985,7 @@ async function runAccountAction(work) {
   if(accountBusy||!authClient)return;
   accountBusy=true;
   accountError='';
+  accountNotice='';
   app.setAttribute('aria-busy','true');
   try {await work();}
   catch(error){accountError=error.message;}
@@ -982,12 +995,22 @@ async function runAccountAction(work) {
     if(screen==='account')render();
   }
 }
-function requestCode(email) {
+function signInWithEmail(email,password) {
   accountEmail=email;
   return runAccountAction(async ()=>{
-    const {error}=await authClient.auth.signInWithOtp({email});
-    if(error)throw Error('코드를 보내지 못했어요. 주소를 확인하고 잠시 뒤 다시 시도해 주세요.');
-    emailForCode=email;
+    const {error}=await authClient.auth.signInWithPassword({email,password});
+    if(error)throw Error('이메일과 비밀번호를 확인해 주세요. 비밀번호를 설정한 적이 없다면 Google로 로그인해 주세요.');
+  });
+}
+function saveAccountPassword(password,confirmation) {
+  if(!canSetAccountPassword())return;
+  return runAccountAction(async ()=>{
+    if(password!==confirmation)throw Error('새 비밀번호와 비밀번호 확인을 같게 입력해 주세요.');
+    if(password.length<12)throw Error('비밀번호를 12자 이상으로 설정해 주세요.');
+    if(new TextEncoder().encode(password).length>72)throw Error('조금 더 짧은 비밀번호로 다시 입력해 주세요.');
+    const {error}=await authClient.auth.updateUser({password});
+    if(error)throw Error('비밀번호를 저장하지 못했어요. Google로 다시 로그인한 뒤, 이전과 다른 비밀번호로 시도해 주세요.');
+    accountNotice='비밀번호를 저장했어요. 이제 같은 이메일로도 로그인할 수 있어요.';
   });
 }
 function importGuestSearch() {
@@ -1155,15 +1178,14 @@ app.addEventListener('click',event=>{
       go('list');
       break;
     case 'account-back':
-      emailForCode='';
       accountError='';
+      accountNotice='';
       if(accountReturn)go(accountReturn.screen,accountReturn.id);
       break;
     case 'guest-dialog': app.querySelector('#guest-dialog').showModal();break;
     case 'guest-cancel': app.querySelector('#guest-dialog').close();break;
     case 'guest-confirm':
       app.querySelector('#guest-dialog').close();
-      emailForCode='';
       accountError='';
       go('welcome');break;
     case 'import-guest': importGuestSearch();break;
@@ -1173,8 +1195,6 @@ app.addEventListener('click',event=>{
         const {error}=await authClient.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
         if(error)throw Error('로그인 페이지를 열지 못했어요. 연결 설정을 확인해 주세요.');
       });break;
-    case 'resend-code': if(emailForCode)void requestCode(emailForCode);break;
-    case 'change-email': emailForCode='';accountError='';render();break;
     case 'cloud-retry': syncProblem='';void syncCloud();render();break;
     case 'cloud-reload':
       if(!accountUser||syncing)break;
@@ -1190,7 +1210,6 @@ app.addEventListener('click',event=>{
       void runAccountAction(async ()=>{
         const {error}=await authClient.auth.signOut({scope:'local'});
         if(error)throw Error('로그아웃하지 못했어요. 다시 시도해 주세요.');
-        emailForCode='';
         accountEmail='';
         if(accountUser)await loadCloud(null);
       });break;
@@ -1382,14 +1401,8 @@ app.addEventListener('submit',event=>{
   switch(form.dataset.form) {
     case 'registry-scan': void scanRegistry(form,values);return;
     case 'listing-photo': void saveListingPhoto(item,form,values.photo);return;
-    case 'email-code': void requestCode(values.email.trim());return;
-    case 'verify-code':
-      if(!emailForCode)return;
-      void runAccountAction(async ()=>{
-        const {error}=await authClient.auth.verifyOtp({email:emailForCode,token:values.code.trim(),type:'email'});
-        if(error)throw Error('코드가 맞는지 확인해 주세요. 만료됐다면 다시 받을 수 있어요.');
-        emailForCode='';
-      });return;
+    case 'email-password': void signInWithEmail(values.email.trim(),values.password);return;
+    case 'set-account-password': void saveAccountPassword(values.newPassword,values.confirmPassword);return;
     case 'registration-value':
       if(!values.value.trim())return;
       registration[registrationStep]=values.value.trim();

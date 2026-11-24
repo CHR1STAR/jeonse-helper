@@ -10,7 +10,7 @@
 ## 로그인 방식별 설정
 
 - **Google** · Google Cloud에서 웹 OAuth 클라이언트를 만든다. Google에는 Supabase가 표시하는 콜백 URL을 등록하고, Supabase의 Google 제공자 설정에 클라이언트 ID와 비밀 키를 입력한다. [Supabase Google 설정](https://supabase.com/docs/guides/auth/social-sign-in/auth-google)
-- **이메일** · Supabase의 이메일 로그인을 켜고 **Magic Link 또는 OTP** 메일 템플릿에 `{{ .Token }}`을 넣어 6자리 코드를 보낸다. 팀 외 이메일로 발송하려면 별도 SMTP를 연결한다. [인증 메일 템플릿](https://supabase.com/docs/guides/auth/auth-email-templates) · [메일 발송 설정](https://supabase.com/docs/guides/auth/auth-smtp)
+- **이메일과 비밀번호** · Supabase의 Email 제공자와 이메일 확인 설정을 유지한다. 처음에는 Google로 로그인하고 **내 계정 → 이메일 로그인용 비밀번호 설정**에서 비밀번호를 만든다. 이후 같은 이메일과 비밀번호로 같은 계정에 로그인할 수 있다. 비밀번호를 잊었을 때도 Google로 로그인한 뒤 다시 설정한다. 이 흐름에는 이메일 발송 설정이 필요하지 않다. [Supabase 계정 연결](https://supabase.com/docs/guides/auth/auth-identity-linking)
 
 활성화한 방식으로 로그인해 매물을 저장한다. 다른 브라우저에서 같은 계정으로 로그인해 매물과 멈춘 계약 질문을 확인한다. 별도의 계정에서는 이 기록을 읽거나 바꿀 수 없는지 확인한다.
 
