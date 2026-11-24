@@ -362,7 +362,7 @@ async function loadCloud(user) {
   updateAccountControls();
   render();
   try {
-    const {data,error}=await authClient.from('jeonse_workspaces').select('payload,version').eq('user_id',user.id).maybeSingle();
+    const {data,error}=await authClient.rpc('jeonse_read_workspace').maybeSingle();
     if(epoch!==accountEpoch)return;
     if(error)throw error;
     state=normalizeSearch(data?.payload);

@@ -3,6 +3,7 @@
 ## 웹앱과 데이터베이스
 
 1. Supabase 프로젝트를 만들고 SQL Editor에서 `jeonse-supabase.sql`을 실행한다. Data API에서 `public` 스키마를 사용할 수 있어야 한다.
+   이어서 `001-listings-and-visit-checks.sql`을 실행한다. 이미 운영 중인 프로젝트에는 두 번째 SQL만 적용한다. 새 웹앱을 배포하기 전에 실행하며 기존 기록도 이 단계에서 옮겨진다.
 2. `index.html`의 `cloudConfig`에 프로젝트 URL과 **Publishable key**를 넣는다. OAuth 비밀 키와 데이터베이스 비밀번호는 Supabase 대시보드에서 관리한다.
 3. `index.html`과 `jeonse-example-rooms.png`를 같은 폴더에 두고 정적 웹 호스팅에 올린다. Supabase의 Authentication URL Configuration에서 배포한 웹 주소를 Site URL과 Redirect URLs에 등록한다.
 

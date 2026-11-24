@@ -1,0 +1,40 @@
+name: Project checks
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  guest-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: npm install --no-save --no-package-lock playwright@1.62.1
+      - run: npx playwright install --with-deps chromium
+      - run: |
+          docker build -t jeonse-helper .
+          docker run -d --name jeonse-web -p 127.0.0.1:8080:80 jeonse-helper
+          curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 -o /dev/null http://127.0.0.1:8080/
+      - run: node --test test-guest-flow.mjs
+      - if: failure()
+        run: docker logs jeonse-web || true
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: |
+          docker run -d --name jeonse-db -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17
+          for attempt in {1..30}; do
+            if docker exec jeonse-db pg_isready -h 127.0.0.1 -U postgres; then
+              bash test-database.sh jeonse-db
+              exit $?
+            fi
+            sleep 2
+          done
+          docker logs jeonse-db
+          exit 1
