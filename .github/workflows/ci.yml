@@ -18,7 +18,7 @@ jobs:
       - run: |
           docker build -t jeonse-helper .
           docker run -d --name jeonse-web -p 127.0.0.1:8080:80 jeonse-helper
-          curl --fail --retry 12 --retry-connrefused http://127.0.0.1:8080/
+          curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 1 -o /dev/null http://127.0.0.1:8080/
       - run: node --test test-guest-flow.mjs
       - if: failure()
         run: docker logs jeonse-web || true
