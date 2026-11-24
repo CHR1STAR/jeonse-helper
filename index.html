@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전세계약 도우미</title>
+<style>
+:root{color-scheme:light;--blue:#215bea;--ink:#142443;--muted:#52627b;--border:#dce5f2;--wash:#edf3ff;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+header,main{max-width:960px;margin:auto;padding:20px clamp(16px,4vw,36px)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+main{padding-top:12px;padding-bottom:48px}
+small,.muted{color:var(--muted)} p{margin:8px 0 16px}
+h1,h2,h3{line-height:1.24;margin:0 0 10px;overflow-wrap:anywhere} h1{font-size:clamp(26px,5vw,38px)}
+h2{font-size:22px} h3{font-size:17px}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+button{min-height:44px;padding:9px 14px;border:1px solid var(--border);border-radius:10px;background:var(--paper);color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #6d9bff;outline-offset:2px}
+.primary{background:var(--blue);border-color:var(--blue);color:white;font-weight:700}
+.back{margin-bottom:16px}
+.badge{background:var(--wash);color:#1749bd;border-radius:8px;padding:4px 9px;font-size:13px;font-weight:650;display:inline-block}
+.panel{background:var(--paper);border:1px solid var(--border);border-radius:18px;padding:clamp(16px,4vw,28px);margin-bottom:16px}
+.guide{max-width:640px;margin-inline:auto}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.row.between{justify-content:space-between}
+.property-actions{display:grid;justify-items:center;gap:10px}
+.fields{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+fieldset{margin:14px 0;border:1px solid var(--border);border-radius:12px;padding:10px 14px}
+legend{font-weight:650;padding:0 5px}
+label:not(.inline){display:grid;gap:5px;margin:0 0 12px}
+label.inline{display:inline-flex;align-items:center;gap:7px;min-height:44px}
+input:not([type=checkbox]),select,textarea{min-height:44px;width:100%;min-width:0;padding:8px;border:1px solid #aebed7;border-radius:9px;background:white;color:var(--ink)}
+input[type=checkbox]{width:19px;height:19px;accent-color:var(--blue)}
+.note{background:var(--wash);padding:14px;border-radius:12px;margin:12px 0;overflow-wrap:anywhere}
+.status{min-height:25px;margin-top:8px;color:#1749bd}
+.account-controls{display:flex;align-items:center;gap:10px}
+.account-form{margin-top:18px}
+.sign-in,.sign-in input,.sign-in .choices button{text-align:center}
+.sign-in .row{justify-content:center}
+.sign-in input::placeholder{color:#64748b;opacity:1}
+.sign-in input:focus::placeholder{color:transparent}
+#account-button[hidden]{display:none}
+.account-message{margin:12px 0;overflow-wrap:anywhere}
+#guest-dialog{width:min(calc(100% - 32px),400px);padding:24px;border:1px solid var(--border);border-radius:16px;color:var(--ink)}
+#guest-dialog::backdrop{background:#14244366}
+#guest-dialog .guest-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#contract-dialog{width:min(calc(100% - 32px),400px);max-width:none;padding:24px;border:1px solid var(--border);border-radius:18px;background:var(--paper);color:var(--ink)}
+#contract-dialog::backdrop{background:#14244366}
+#contract-dialog[open]{animation:arrive 180ms ease-out}
+#contract-dialog .contract-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}
+#contract-dialog .contract-actions button{min-height:48px}
+@media(prefers-reduced-motion:reduce){#contract-dialog[open]{animation:none}}
+.previous-step{margin-top:14px}
+.task-done{position:relative;animation:task-fade 450ms 200ms ease both}
+.task-done::after{content:'🎉';position:absolute;inset:0;display:grid;place-items:center;font-size:32px;pointer-events:none;animation:task-burst 600ms ease-out both}
+@keyframes task-fade{to{opacity:0}}
+@keyframes task-burst{from{opacity:0;transform:scale(.55)}35%{opacity:1;transform:translateY(-5px) scale(1.18)}to{opacity:0;transform:translateY(-22px) scale(1)}}
+.toast:not(:empty){position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);z-index:5;padding:10px 16px;border-radius:10px;background:var(--ink);color:#fff;pointer-events:none}
+.field-error{color:#aa2532;font-size:14px}
+input[aria-invalid=true]{border-color:#aa2532}
+.resume{margin-top:16px}
+.resume p{margin:6px 0 0}
+.contract-banner{margin-top:16px;border-inline-start:3px solid var(--blue);padding:12px 14px;background:var(--wash);border-radius:8px}
+.contract-banner p{margin:0 0 8px}
+.compare-table .badge{display:inline-block;margin:4px 0}
+.compare-sheet{box-sizing:border-box;position:fixed;inset:auto 0 0;margin:0 auto;width:min(100%,500px);max-width:none;max-height:85dvh;overflow:auto;padding:20px 20px calc(20px + env(safe-area-inset-bottom));border:1px solid var(--border);border-radius:18px 18px 0 0;background:var(--paper);color:var(--ink)}
+.compare-sheet::backdrop{background:#14244366}
+.compare-sheet[open]{animation:sheet-in 180ms ease-out}
+.compare-sheet form{display:grid;gap:8px}
+.compare-sheet .inline{margin:0}
+@keyframes sheet-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.compare-sheet[open]{animation:none}}
+.task{border-top:1px solid var(--border);padding:8px 0}
+.task p{margin:0 0 5px}
+.welcome,.visit,.compare{border:0;padding:0}
+.welcome{max-width:460px;margin:clamp(24px,8vh,78px) auto 40px}
+.welcome h1{font-size:clamp(30px,7vw,42px);margin-top:0;letter-spacing:-.04em}
+.welcome .muted{margin-bottom:0}
+.choices{display:grid;gap:10px;margin:24px 0 16px}
+.choices button{text-align:left;min-height:58px;padding-inline:17px;border-radius:13px;font-weight:650}
+.choices button:not(.primary){background:#f5f7fa;border-color:transparent}
+.choices button:active{transform:scale(.985)}
+.choices button{transition:transform 140ms ease,background 140ms ease}
+.quiet{border:0;padding-inline:0;background:transparent;color:var(--muted)}
+.visit{max-width:520px}
+.visit .context,.compare .context{display:block;margin-top:14px;color:var(--muted)}
+.visit h1{margin-top:4px}
+.visit-progress{margin:24px 0 14px}
+.visit-progress p{margin:0 0 6px;font-size:22px;font-weight:700}
+.visit-progress strong{font-size:32px;color:var(--blue);font-variant-numeric:tabular-nums}
+.visit-progress progress{display:block;width:100%;height:7px;border:0;border-radius:999px;overflow:hidden;appearance:none;background:#edf0f5}
+.visit-progress progress::-webkit-progress-bar{background:#edf0f5}
+.visit-progress progress::-webkit-progress-value{background:var(--blue);border-radius:999px;transition:width 180ms ease}
+.visit-progress progress::-moz-progress-bar{background:var(--blue);border-radius:999px}
+.visit-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.visit fieldset.visit-row{margin:0 0 14px;padding:0;border:0;min-width:0}
+.visit-row legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.visit-row .visit-tip{margin:0 0 6px}
+.visit-row .visit-tip summary{min-height:44px;padding:9px 0}
+.visit-row .visit-tip p{margin:0 0 8px}
+.visit-options label.visit-option{position:relative;display:block;min-width:0;margin:0}
+.visit-option input[type=radio]{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.visit-option span{display:grid;place-items:center;min-height:44px;padding:5px 2px;border:1px solid var(--border);border-radius:8px;font-size:14px;text-align:center}
+.visit-option input:checked+span{background:var(--wash);border-color:var(--blue);color:#1749bd;font-weight:700}
+.visit-option input:checked[value="미확인"]+span{background:#f1f3f6;border-color:#7d8796;color:var(--ink)}
+.visit-option input:checked[value="문제 있음"]+span{background:#b42330;border-color:#b42330;color:#fff}
+.visit-checklist>summary{font-weight:700}
+.visit-option input:focus-visible+span{outline:3px solid #6d9bff;outline-offset:2px}
+.visit details>label{margin-top:8px}
+.visit form>.primary{width:100%;margin-top:8px}
+.compare{max-width:820px;margin-inline:auto}
+.compare h1{margin-top:4px}
+.listing-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 22px}
+.listing-header h1{margin:0;letter-spacing:-.04em}
+.listing-header button{white-space:nowrap;border:0;color:var(--blue);font-weight:750;padding-inline:0}
+.listing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,2vw,16px);margin-top:16px}
+.listing-grid label.listing-card{display:flex;position:relative;margin:0;border:1px solid #cbd0d9;cursor:pointer}
+.listing-grid label.listing-card:has(input:checked){border-color:var(--blue);background:var(--wash)}
+.listing-card input[type=checkbox]{position:absolute;top:9px;right:9px;margin:0;width:24px;height:24px}
+.listing-delete{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px}
+.listing-delete .quiet{padding-inline:8px}
+.listing-delete button:disabled{opacity:.5;cursor:default}
+.delete-confirm{background:#b42330;color:#fff;border-color:#b42330;font-weight:700}
+.listing-card{display:flex;flex-direction:column;width:100%;min-width:0;text-align:left;gap:8px;padding:clamp(5px,1.2vw,11px);border-color:#cbd0d9;border-radius:12px}
+.listing-photo{display:grid;place-items:center;width:100%;aspect-ratio:1.55;overflow:hidden;border-radius:8px;background:#f3f5f8;color:var(--muted)}
+.listing-photo img{width:100%;height:100%;object-fit:cover}
+.listing-photo[data-demo]{background-image:url('./jeonse-example-rooms.png');background-size:226% auto;background-repeat:no-repeat}
+.listing-photo[data-demo="a"]{background-position:6% 19.7%}
+.listing-photo[data-demo="b"]{background-position:94.5% 19.7%}
+.listing-photo[data-demo="c"]{background-position:6% 75.8%}
+.listing-photo[data-demo="d"]{background-position:94.5% 75.8%}
+.listing-copy{display:grid;gap:2px;padding:0 3px 4px;overflow-wrap:anywhere;font-size:clamp(13px,3.5vw,18px)}
+.listing-copy strong{font-size:clamp(15px,4vw,22px);line-height:1.25;margin-bottom:4px}
+.compare-table{overflow-x:auto;margin-top:12px}
+.compare-table table{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed}
+.compare-table th,.compare-table td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--border);overflow-wrap:anywhere;vertical-align:middle}
+.compare-table thead th{background:#f5f7fa}
+.compare-table th[scope=row],.compare-table thead th:first-child{position:sticky;left:0;width:100px;background:#fff;z-index:1;color:var(--muted);font-size:14px}
+.compare-table th[scope=col],.compare-table td{width:142px}
+.compare-table th button{background:transparent;border:0;text-align:left;padding:0;width:100%;font-weight:700;overflow-wrap:anywhere}
+.compare-table .row-action{color:#1749bd;font-weight:650;border-color:transparent;padding-inline:0;text-align:left}
+.compare-table small{display:block}
+.compare-empty{padding:24px 0;border-block:1px solid var(--border);color:var(--muted)}
+.location-map{height:330px;margin:16px 0;border-radius:12px;background:#f5f7fa}
+.location-results{padding-left:22px}
+.location-results li{margin-bottom:7px}
+.wizard{max-width:460px;margin:14px auto 38px;padding:0;border:0;animation:arrive 200ms ease-out}
+body:has(.sign-in){min-height:100svh;display:flex;flex-direction:column}
+body:has(.sign-in)>header{width:100%}
+main:has(.sign-in){width:100%;flex:1;display:grid;align-content:center;padding-block:8px 16px}
+main:has(.sign-in)>footer:has(.status:empty){display:none}
+.wizard.sign-in{width:100%;margin:0 auto}
+.sign-in-gap{height:clamp(0px,calc((100svh - 560px) / 4),53px)}
+@media(max-height:620px){
+  .sign-in .choices{margin-block:12px 8px}
+  .sign-in .account-form{margin-top:8px}
+  .sign-in hr{margin-block:12px}
+}
+.wizard h1{margin:10px 0 8px;letter-spacing:-.035em}
+.wizard-icon{font-size:30px;line-height:1;display:block;margin:24px 0 10px}
+.wizard .wizard-main{margin:22px 0 12px}
+.wizard .primary{width:100%;min-height:52px}
+.wizard .wizard-skip{display:block;margin:8px auto 0}
+.wizard dl{margin:0 0 20px}
+.wizard dl>div{display:grid;grid-template-columns:110px 1fr;gap:12px;border-bottom:1px solid var(--border);padding:10px 0}
+.wizard dt{color:var(--muted)}
+.wizard dd{margin:0;overflow-wrap:anywhere}
+.celebration{text-align:center;margin-top:clamp(24px,8vh,72px)}
+.celebration .wizard-icon{font-size:52px;margin:0 auto 18px;animation:celebrate 360ms ease-out}
+.celebration h1{margin:12px 0}
+.celebration .choices button{text-align:center}
+@keyframes celebrate{from{opacity:0;transform:translateY(6px) scale(.85)}to{opacity:1;transform:translateY(0) scale(1)}}
+.compare summary,.visit summary{color:var(--ink)}
+.welcome,.visit,.compare{animation:arrive 180ms ease-out}
+@keyframes arrive{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.welcome,.visit,.compare{animation:none}.choices button,.visit-progress progress::-webkit-progress-value{transition:none}.choices button:active{transform:none}}
+@media(prefers-reduced-motion:reduce){.wizard,.celebration .wizard-icon{animation:none}}
+details{margin:12px 0}
+summary{color:#1749bd;cursor:pointer;min-height:44px;padding:10px 0;font-weight:650}
+.guide h1{margin-top:16px}
+hr{border:0;border-top:1px solid var(--border);margin:20px 0}
+@media(max-width:540px){.row>*{max-width:100%}.guide .primary{width:100%}}
+</style>
+<header><strong>전세계약 도우미</strong><div class="account-controls"><small id="sync-status" role="status"></small><button type="button" id="account-button">로그인</button></div></header>
+<main id="app"></main>
+<div id="save-toast" class="toast" role="status" aria-atomic="true"></div>
+<script>
+const app = document.getElementById('app');
+const saveToast=document.getElementById('save-toast');
+const accountButton=document.getElementById('account-button');
+const syncStatus=document.getElementById('sync-status');
+// 공개 설정만 입력합니다. OAuth 비밀 키와 DB 비밀번호는 Supabase 대시보드에 둡니다.
+const cloudConfig={url:'https://mxukstndvgwdzyuoaphh.supabase.co',publishableKey:'sb_publishable_keX60B0nVskJrqRhdMCe3g_DbM70_dK',kakaoMapKey:''};
+let authClient=null, accountUser=null, accountLoading=false, accountBusy=false, accountReady=false;
+let accountError='', accountEmail='', emailForCode='', cloudVersion=null, pendingCloud=null, syncing=false, syncProblem='', accountEpoch=0;
+const cloudConfigured=/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(cloudConfig.url)&&cloudConfig.publishableKey.startsWith('sb_publishable_');
+let toastTimer;
+function showToast(message) {
+  clearTimeout(toastTimer);
+  saveToast.textContent=message;
+  toastTimer=setTimeout(()=>{saveToast.textContent='';},2400);
+}
+const storageKey = 'jeonse-prototype-v1';
+const checks = [
+  ['water','수압','세면대와 샤워기를 틀어 물줄기가 충분한지 확인해요.'],
+  ['drain','배수','세면대와 샤워기 물이 빠지는지, 배수구에 물이 고이거나 역류하지 않는지 봐요.'],
+  ['leak','누수','천장 모서리와 창틀, 벽지에 물자국이나 곰팡이 흔적이 있는지 봐요.'],
+  ['bugs','벌레','싱크대 아래와 배수구 주변에 벌레나 배설물 흔적이 있는지 살펴봐요.'],
+  ['light','채광','가능하면 방 불을 끄고 창으로 들어오는 빛을 확인해요.'],
+  ['noise','소음','창문을 열었다 닫으면서 도로와 복도 소리가 얼마나 들리는지 확인해요.'],
+  ['climate','냉난방·온수','가능하면 에어컨과 온수를 켜 보고, 보일러가 작동하는지 확인해요.']
+];
+const results = ['문제 없음','미확인','문제 있음'];
+const stageNames = ['조건 확인','계약 전 확인','계약 당일','계약 직후','잔금·입주','입주 후 점검'];
+const labels = ['집주인에게 보증금과 입주일을 확인했나요?','계약 전에 확인할 일이 남았나요?','계약서에 합의한 내용이 적혀 있나요?','계약서를 쓴 뒤 무엇을 챙겨야 하나요?','잔금을 보내고 집을 인수할 준비가 됐나요?','입주 후 남은 일을 확인해요'];
+const fresh = (id, name, kind, deposit, rent) => ({
+  id,name,kind,deposit,rent,nickname:'',address:'',note:'',checks:{},reply:'',date:'',balance:'',move:'',signed:'',finalDeposit:'',finalRent:'',payday:'',done:{},step:0
+});
+function example() {
+  const items = [
+    fresh('a','은하수원룸','월세','500','45'),
+    fresh('b','창이 큰 원룸','월세','1000','40'),
+    fresh('c','햇살 좋은 집','전세','8000',''),
+    fresh('d','조용한 원룸','월세','300','48')
+  ];
+  items[0].checks={water:'문제 없음',bugs:'문제 없음'};
+  items[1].checks={leak:'문제 있음',water:'문제 없음'};
+  items[1].note='욕실 천장에 물이 샌 흔적이 있었어요.';
+  return items;
+}
+const sampleIds = new Set(example().map(item=>item.id));
+function emptySearch() {
+  return {items:[],chosen:null,last:null,compare:['leak','bugs']};
+}
+function normalizeSearch(data) {
+  if(!Array.isArray(data?.items))return emptySearch();
+  for(const [id,name,nickname] of [['a','후보 A','쪽문 근처'],['b','후보 B','후문 근처'],['c','후보 C','원룸']]) {
+    const saved=data.items.find(item=>item.id===id);
+    if(saved&&saved.nickname===undefined&&saved.name===name+' · '+nickname) {
+      saved.name=name;
+      saved.nickname=nickname;
+    }
+  }
+  return data;
+}
+function readGuestSearch() {
+  try {return normalizeSearch(JSON.parse(localStorage.getItem(storageKey)));}
+  catch {return emptySearch();}
+}
+let state=readGuestSearch();
+let guestImport=null;
+let saveError=false;
+function save() {
+  if(accountUser){
+    pendingCloud=structuredClone(state);
+    saveError=false;
+    void syncCloud();
+    return;
+  }
+  try {localStorage.setItem(storageKey,JSON.stringify(state));saveError=false;}
+  catch {saveError=true;}
+  const status=app.querySelector('[role=status]');
+  if(status)status.textContent=saveError?'브라우저에 저장할 수 없어요. 현재 화면에서만 기록이 유지돼요.':'';
+}
+function updateAccountControls() {
+  accountButton.hidden=!accountUser||screen==='account';
+  accountButton.textContent=accountUser?'내 계정':'로그인';
+  syncStatus.textContent=accountLoading?'로그인 확인 중':syncProblem?'동기화 확인 필요':syncing?'저장 중':accountReady?'계정에 저장됨':'';
+}
+async function syncCloud() {
+  if(!accountReady||syncing||syncProblem||!pendingCloud)return;
+  const epoch=accountEpoch, userId=accountUser.id;
+  syncing=true;
+  updateAccountControls();
+  try {
+    while(epoch===accountEpoch&&pendingCloud){
+      const payload=pendingCloud;
+      const table=authClient.from('jeonse_workspaces');
+      const result=cloudVersion===null
+        ?await table.insert({user_id:userId,payload}).select('version').single()
+        :await table.update({payload,version:cloudVersion+1}).eq('user_id',userId).eq('version',cloudVersion).select('version').maybeSingle();
+      if(epoch!==accountEpoch)return;
+      if(result.error?.code==='23505'||(!result.error&&!result.data)){
+        syncProblem='conflict';
+        break;
+      }
+      if(result.error)throw result.error;
+      cloudVersion=result.data.version;
+      if(guestImport&&payload.guestImports?.includes(guestImport.id)){
+        try {
+          if(localStorage.getItem(storageKey)===guestImport.raw)localStorage.removeItem(storageKey);
+        } catch {}
+        guestImport=null;
+      }
+      if(pendingCloud===payload)pendingCloud=null;
+    }
+  } catch {
+    if(epoch===accountEpoch)syncProblem='network';
+  } finally {
+    if(epoch===accountEpoch){
+      syncing=false;
+      updateAccountControls();
+      if(screen==='account')render();
+    }
+  }
+}
+async function loadCloud(user) {
+  const epoch=++accountEpoch;
+  accountUser=user;
+  accountReady=false;
+  accountLoading=!!user;
+  syncing=false;
+  syncProblem='';
+  pendingCloud=null;
+  guestImport=null;
+  cloudVersion=null;
+  saveError=false;
+  accountReturn=null;
+  if(!user){
+    state=readGuestSearch();
+    go('account');
+    return;
+  }
+  state=emptySearch();
+  updateAccountControls();
+  render();
+  try {
+    const {data,error}=await authClient.from('jeonse_workspaces').select('payload,version').eq('user_id',user.id).maybeSingle();
+    if(epoch!==accountEpoch)return;
+    if(error)throw error;
+    state=normalizeSearch(data?.payload);
+    cloudVersion=data?.version??null;
+    accountReady=true;
+    accountError='';
+  } catch {
+    if(epoch===accountEpoch)accountError='계정 기록을 불러오지 못했어요. 연결을 확인한 뒤 다시 시도해 주세요.';
+  } finally {
+    if(epoch===accountEpoch){
+      accountLoading=false;
+      go(accountReady&&!readGuestSearch().items.length?'welcome':'account');
+    }
+  }
+}
+async function startAuth() {
+  if(!cloudConfigured||location.protocol==='file:')return;
+  accountLoading=true;
+  render();
+  try {
+    await new Promise((resolve,reject)=>{
+      const script=document.createElement('script');
+      const timer=setTimeout(()=>{script.remove();reject(Error());},12000);
+      script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      script.onload=()=>{clearTimeout(timer);resolve();};
+      script.onerror=()=>{clearTimeout(timer);reject(Error());};
+      document.head.append(script);
+    });
+    authClient=window.supabase.createClient(cloudConfig.url,cloudConfig.publishableKey,{auth:{flowType:'pkce'}});
+    authClient.auth.onAuthStateChange((event,session)=>{
+      // 인증 콜백 내부에서 Supabase 요청을 기다리지 않습니다.
+      setTimeout(()=>{
+        const user=session?.user??null;
+        if(event==='INITIAL_SESSION'||user?.id!==accountUser?.id)void loadCloud(user);
+      },0);
+    });
+  } catch {
+    accountLoading=false;
+    accountError='로그인 연결을 열지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.';
+    render();
+  }
+}
+window.addEventListener('beforeunload',event=>{
+  if(!pendingCloud)return;
+  event.preventDefault();
+  event.returnValue='';
+});
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const displayName = item => item.nickname ? item.name+' · '+item.nickname : item.name;
+const money = value => value === '' ? '미확인' : Number(value)===0?'0원':Number(value).toLocaleString('ko-KR')+'만 원';
+const nearbyCategories=[['SW8','지하철역'],['SC4','학교']];
+const placeDistance=meters=>Number(meters).toLocaleString('ko-KR')+'m';
+let screen='account', active=null, intent='visit';
+let deleteMode=false;
+const deleteSelection=new Set();
+let accountReturn=null;
+let registration=null, registrationStep='name', registrationReturn='list';
+function go(view,id=null) {
+  deleteMode=false;
+  deleteSelection.clear();
+  screen=view; active=id; render();
+  app.querySelector('h1')?.focus();
+  window.scrollTo(0,0);
+}
+function action(text, name, primary=false, id='') {
+  return `<button type="button" class="${primary?'primary':''}" data-action="${name}" data-id="${esc(id)}">${text}</button>`;
+}
+function title(text) {return `<h1 tabindex="-1">${esc(text)}</h1>`;}
+function field(label,name,value,type='text',extra='') {
+  return `<label>${label}<input type="${type}" name="${name}" value="${esc(value)}" ${extra}></label>`;
+}
+function amountField(label,name,value,required=false) {
+  const errorId='amount-'+name+'-error';
+  return `<label>${label}<input type="number" name="${name}" value="${esc(value)}" min="0" step="0.01" inputmode="decimal" data-amount-error="${errorId}" aria-describedby="${errorId}" ${required?'required':''}>
+    <span id="${errorId}" class="field-error" aria-live="polite" hidden></span></label>`;
+}
+function select(label,name,value,options) {
+  return `<label>${label}<select name="${name}">${options.map(o=>`<option value="${esc(o)}"${o===value?' selected':''}>${esc(o||'미확인')}</option>`).join('')}</select></label>`;
+}
+function renderResume(item) {
+  if(item.signed)return action(esc(item.name)+' 계약 후 할 일 보기','guide',false,item.id);
+  let question='전세인가요, 월세인가요?';
+  if(item.step>=2)question=labels[item.step];
+  else if(item.kind){
+    const steps=prepQuestions(item);
+    question=steps[prepIndex(item,steps)].title;
+  }
+  const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const tomorrow=new Date(Date.parse(today+'T00:00:00Z')+86400000).toISOString().slice(0,10);
+  const due=item.date===today?'오늘은 계약일이에요':item.date===tomorrow?'내일은 계약일이에요':'';
+  return `<div class="resume">
+    ${due?`<div class="contract-banner"><p><strong>${due}</strong> · ${esc(item.name)}</p>${action('남은 준비 보기','guide',false,item.id)}</div>`:
+      action(esc(item.name)+' 계약 준비 이어하기','guide',false,item.id)}
+    <p class="muted"><small>${item.prepWaiting&&item.prepWaiting===item.prepQuestion&&item.step<=1?'멈춘 질문':'이어서 볼 질문'} · ${esc(question)}</small></p>
+  </div>`;
+}
+function renderWelcome() {
+  const chosen=state.items.find(item=>item.id===state.chosen);
+  return `<div class="panel guide welcome">
+    ${title('지금 어떤 단계인가요?')}
+    <p class="muted">지금 상황을 고르면 다음 할 일을 알려드려요.</p>
+    <div class="choices">
+      ${action('집을 알아보고 있어요','search-start',true)}
+      ${action('집을 보러 가요','visit-start')}
+      ${action('계약할 집을 골랐어요','prepare-start')}
+      ${action('계약서를 작성했어요','signed-start')}
+    </div>
+    ${chosen?renderResume(chosen):''}
+  </div>`;
+}
+function renderPicker() {
+  const prompt=intent==='visit'?'어느 집을 보러 가나요?':intent==='prepare'?'어느 집으로 계약을 준비할까요?':'어느 집의 계약서를 작성했나요?';
+  return `<div class="panel guide welcome">
+    ${action('← 처음 질문으로','welcome')}
+    ${title(prompt)}
+    <p class="muted">목록에서 집을 고르거나 새로 등록해요.</p>
+    <div class="choices">${state.items.map(item=>action(esc(displayName(item)),'pick',false,item.id)).join('')}
+    ${action('+ 새 매물 등록','add',true)}</div>
+  </div>`;
+}
+function renderList() {
+  const chosen=state.items.find(item=>item.id===state.chosen);
+  return `<section class="compare">
+    <button class="quiet" data-action="welcome">← 처음 질문으로</button>
+    <div class="listing-header">${title(deleteMode?'삭제할 매물 고르기':'집 구하기')}${deleteMode?'':action('+ 매물 등록','add')}</div>
+    ${state.items.length?`
+      <div class="listing-grid" aria-label="후보 매물">${state.items.map(renderListingCard).join('')}</div>`:
+      '<p class="compare-empty">등록한 매물이 없어요. 관심 있는 집을 찾으면 첫 매물을 등록해 보세요.</p>'}
+    ${!deleteMode&&chosen&&!chosen.signed?renderResume(chosen):''}
+    ${state.items.length?`<div class="listing-delete">${deleteMode?`
+      <small data-delete-count aria-live="polite">선택한 매물 ${deleteSelection.size}개</small>
+      <button type="button" class="quiet" data-action="cancel-delete">취소</button>
+      <button type="button" class="delete-confirm" data-action="confirm-delete" ${deleteSelection.size?'':'hidden'}>매물 삭제하기</button>`:
+      '<button type="button" class="quiet" data-action="start-delete"><span aria-hidden="true">🗑️</span> 매물 삭제</button>'}</div>`:''}
+  </section>`;
+}
+function renderListingCard(item) {
+  const demo=sampleIds.has(item.id)?item.id:'';
+  const hasPhoto=/^data:image\/jpeg;base64,[a-z0-9+/=]+$/i.test(item.photo||'');
+  const photo=hasPhoto?`<span class="listing-photo"><img src="${item.photo}" alt=""></span>`:
+    `<span class="listing-photo"${demo?` data-demo="${demo}" aria-label="예시 매물 사진"`:''}>${demo?'':'사진 없음'}</span>`;
+  const rent=item.kind==='전세'?'전세':item.kind==='월세'?'월세 '+money(item.rent):'계약 유형 미확인';
+  const contents=`${photo}<span class="listing-copy"><strong>${esc(displayName(item))}</strong>
+    <span>보증금 ${money(item.deposit)}</span><span>${rent}</span></span>`;
+  if(deleteMode)return `<label class="listing-card"><input type="checkbox" data-delete-id="${esc(item.id)}"
+    aria-label="${esc(displayName(item))} 삭제 선택" ${deleteSelection.has(item.id)?'checked':''}>${contents}</label>`;
+  return `<button type="button" class="listing-card" data-action="detail" data-id="${esc(item.id)}">${contents}</button>`;
+}
+async function readListingPhoto(file) {
+  if(!file?.size||file.size>15*1024*1024||!['image/jpeg','image/png','image/webp'].includes(file.type)){
+    throw Error('15MB 이하의 JPG, PNG 또는 WebP 사진을 골라 주세요.');
+  }
+  const bitmap=await createImageBitmap(file).catch(()=>{throw Error('사진을 열 수 없어요. 다른 사진을 골라 주세요.');});
+  try {
+    const canvas=document.createElement('canvas');
+    const scale=Math.min(1,640/Math.max(bitmap.width,bitmap.height));
+    canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+    canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+    canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+    return canvas.toDataURL('image/jpeg',0.8);
+  } finally {bitmap.close();}
+}
+async function saveListingPhoto(item,form,file) {
+  const error=form.querySelector('[data-photo-error]');
+  const button=form.querySelector('button');
+  button.disabled=true;
+  try {
+    const photo=await readListingPhoto(file);
+    if(!state.items.includes(item)||active!==item.id||screen!=='detail')return;
+    item.photo=photo;
+    save();
+    if(!saveError)go('list');
+    else error.textContent='사진을 저장할 수 없어요. 브라우저 저장 공간을 확인해 주세요.';
+  } catch(errorReadingPhoto) {
+    error.textContent=errorReadingPhoto.message;
+  } finally {button.disabled=false;}
+}
+function locationControls(item,wizard=false) {
+  if(!cloudConfig.kakaoMapKey||location.protocol==='file:'){
+    return `<form data-form="save-manual-address">
+      ${field('매물 주소','address',item.address,'text','required maxlength="160"')}
+      <button class="primary">${wizard?'다음':'주소 저장'}</button>
+    </form>`;
+  }
+  return `
+  <form data-form="location-search">
+    ${field('매물 주소','query',item.address,'text','required maxlength="160" placeholder="시·구를 포함한 지번 또는 도로명 주소"')}
+    <button class="primary">지도에서 주소 찾기</button>
+  </form>
+  ${wizard?action('주소만 기록하기','save-address'):''}
+  ${action('지도에서 직접 찍기','pick-map',false,item.id)}
+  <div data-location-map class="location-map" hidden aria-label="매물 위치 지도"></div>
+  <div data-location-result aria-live="polite">${item.location&&!wizard?locationSummary(item.location):''}</div>
+  <button type="button" class="primary" data-action="save-location" hidden>${wizard?'이 위치로 선택':'이 위치와 주변 거리 저장'}</button>`;
+}
+function renderLocation(item) {
+  return `<div class="panel guide">${action('← 방문 기록','detail',false,item.id)}
+  ${title(displayName(item)+' 위치')}
+  <p class="muted">지번이나 도로명 주소를 기록할 수 있어요.</p>
+  ${locationControls(item)}</div>`;
+}
+function registrationSteps() {
+  return ['name','address','kind','deposit',...(registration.kind==='월세'?['rent']:[]),'photo','review'];
+}
+function registrationMove(offset) {
+  const steps=registrationSteps();
+  const target=steps[steps.indexOf(registrationStep)+offset];
+  ++locationRequest;
+  locationDraft=null;
+  if(!target){go(registrationReturn);return;}
+  registrationStep=target;
+  go('registration');
+}
+function renderRegistration() {
+  const steps=registrationSteps();
+  const step=registrationStep;
+  const questions={
+    name:['🏠','이 집을 뭐라고 부를까요?','나중에 알아보기 쉬운 이름을 붙여요.'],
+    address:['📍','집 위치를 알고 있나요?','알고 있는 주소를 기록해요.'],
+    kind:['🔑','전세인가요, 월세인가요?','매물에서 본 계약 유형을 골라요.'],
+    deposit:['💰','보증금은 얼마인가요?','만 원 단위로 입력해요.'],
+    rent:['💰','한 달 월세는 얼마인가요?','만 원 단위로 입력해요.'],
+    photo:['📷','이 집의 사진을 등록할까요?','후보 목록에 보여줄 대표 사진 한 장을 골라요.'],
+    review:['🏠','이 집을 후보에 추가할까요?','모르는 정보는 등록 후에 채울 수 있어요.']
+  };
+  const [icon,question,help]=questions[step];
+  const summaries=[
+    ['매물 이름',registration.name||nextCandidateName()],
+    ['위치',registration.address||(registration.location?'지도에서 지정한 위치':'미확인')],
+    ['계약 유형',registration.kind||'미확인'],
+    ['보증금',money(registration.deposit)],
+    ...(registration.kind==='월세'?[['월세',money(registration.rent)]]:[]),
+    ['대표 사진',registration.photo?'선택했어요':'나중에 등록']
+  ];
+  const content=step==='address'?locationControls(registration,true):
+    step==='kind'?`<div class="choices">${action('전세','registration-kind',registration.kind==='전세','전세')}${action('월세','registration-kind',registration.kind==='월세','월세')}</div>`:
+    step==='photo'?`${registration.photo?`<span class="listing-photo"><img src="${registration.photo}" alt="선택한 대표 사진"></span>`:''}
+      <div class="choices">
+        ${action('카메라로 직접 찍기','registration-photo',true,'camera')}
+        ${action('사진 등록하기','registration-photo',false,'album')}
+        ${registration.photo?action('선택한 사진으로 계속하기','registration-keep-photo'):''}
+      </div>
+      <input type="file" data-registration-photo="camera" accept="image/*" capture="environment" hidden>
+      <input type="file" data-registration-photo="album" accept="image/*" hidden>
+      <p class="field-error" data-registration-photo-error role="alert"></p>`:
+    step==='review'?`<dl>${summaries.map(([label,value])=>`<div><dt>${label}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${action('후보 매물 등록하기','registration-finish',true)}`:
+    `<form data-form="registration-value">${step==='name'
+      ?field('매물 이름','value',registration.name,'text','required maxlength="60" placeholder="예: 햇빛 잘 드는 원룸"')
+      :amountField((step==='deposit'?'보증금':'월세')+' (만 원)','value',registration[step],true)}
+      <button class="primary">다음</button></form>`;
+  return `<section class="wizard">
+    <small class="context">매물 등록 · ${steps.indexOf(step)+1}단계</small>
+    <span class="wizard-icon" aria-hidden="true">${icon}</span>
+    ${title(question)}<p class="muted">${help}</p>
+    <div class="wizard-main">${content}</div>
+    ${step!=='review'?`<button class="quiet wizard-skip" data-action="registration-skip">${step==='photo'?'사진은 나중에 등록할게요':'아직 몰라요'}</button>`:''}
+    <div class="previous-step"><button class="quiet" data-action="registration-back">← 뒤로</button></div>
+  </section>`;
+}
+function nextCandidateName() {
+  let number=1;
+  while(state.items.some(item=>item.name==='후보 '+number))number++;
+  return '후보 '+number;
+}
+function locationSummary(location) {
+  const places=location.places.filter(place=>nearbyCategories.some(([code])=>code===place.code));
+  return `<p>${esc(location.address||'지도에서 지정한 위치')}</p>
+    <details><summary>가까운 역·학교 보기</summary><p class="muted">직선거리 · 반경 2km</p>
+    ${places.length?`<ul class="location-results">${places.map(place=>`<li>${esc(place.label)} · ${esc(place.name)} · ${placeDistance(place.meters)}</li>`).join('')}</ul>`:'<p>반경 안에 해당 장소가 없어요.</p>'}</details>`;
+}
+let sdkLoad, locationDraft, mapView, locationRequest=0;
+function mapSdk() {
+  if(location.protocol==='file:') throw Error('지도 연결은 등록된 웹 주소에서 열어야 해요. 현재는 로컬 HTML 파일을 열고 있어요.');
+  const key=cloudConfig.kakaoMapKey;
+  if(!key) throw Error('지도 기능을 현재 사용할 수 없어요.');
+  if(window.kakao?.maps?.services)return Promise.resolve(window.kakao.maps);
+  sdkLoad??=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    const fail=()=>{clearTimeout(timer);script.remove();reject(Error('지도를 열 수 없어요. JavaScript 키와 등록한 웹 주소를 확인해 주세요.'));};
+    const timer=setTimeout(fail,10000);
+    script.src='https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&libraries=services&appkey='+encodeURIComponent(key);
+    script.onerror=fail;
+    script.onload=()=>window.kakao?.maps?.load?window.kakao.maps.load(()=>{
+      clearTimeout(timer);
+      resolve(window.kakao.maps);
+    }):fail();
+    document.head.append(script);
+  }).catch(error=>{sdkLoad=null;throw error;});
+  return sdkLoad;
+}
+function mapService(maps, invoke) {
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(Error('지도 검색 응답이 늦어요. 다시 시도해 주세요.')),10000);
+    invoke((rows,status)=>{
+      clearTimeout(timer);
+      if(status===maps.services.Status.OK)resolve(rows);
+      else if(status===maps.services.Status.ZERO_RESULT)resolve([]);
+      else reject(Error('지도 검색에 실패했어요. 잠시 뒤 다시 시도해 주세요.'));
+    });
+  });
+}
+function locationCurrent(request,id) {
+  return request===locationRequest&&active===id&&(screen==='location'||(screen==='registration'&&registrationStep==='address'));
+}
+function displayMap(maps,lat,lng,level=4) {
+  const target=app.querySelector('[data-location-map]');
+  target.hidden=false;
+  if(mapView?.target===target)return mapView;
+  const map=new maps.Map(target,{center:new maps.LatLng(lat,lng),level});
+  const marker=new maps.Marker();
+  maps.event.addListener(map,'click',event=>lookupLocation({pin:event.latLng}));
+  mapView={target,map,marker};
+  return mapView;
+}
+async function lookupLocation({query,pin}={}) {
+  const id=active, request=++locationRequest;
+  const registering=screen==='registration';
+  const item=registering?registration:state.items.find(candidate=>candidate.id===id);
+  const result=app.querySelector('[data-location-result]');
+  const saveButton=app.querySelector('[data-action="save-location"]');
+  locationDraft=null;
+  saveButton.hidden=true;
+  result.textContent='지도에서 위치를 확인하는 중이에요.';
+  try {
+    const maps=await mapSdk();
+    if(!locationCurrent(request,id))return;
+    const geocoder=new maps.services.Geocoder();
+    let point=pin, address='';
+    if(query) {
+      const matches=await mapService(maps,done=>geocoder.addressSearch(query,done));
+      if(!locationCurrent(request,id))return;
+      if(!matches.length)throw Error('주소를 찾지 못했어요. 시·구를 포함해 입력하거나 지도에서 직접 찍어 주세요.');
+      const exact=matches.find(match=>match.address_name===query||match.road_address?.address_name===query);
+      if(!exact&&matches.length>1)throw Error('같은 이름의 주소가 여러 곳이에요. 시·구까지 입력하거나 지도에서 직접 찍어 주세요.');
+      const match=exact||matches[0];
+      point=new maps.LatLng(Number(match.y),Number(match.x));
+      address=match.road_address?.address_name||match.address_name;
+    }
+    if(!point&&item.location) {
+      point=new maps.LatLng(item.location.lat,item.location.lng);
+      address=item.location.address;
+    }
+    if(!point){
+      displayMap(maps,36.4,127.8,13);
+      result.textContent='지도를 확대해 매물이 있는 곳을 찍어 주세요.';
+      return;
+    }
+    const lat=point.getLat(), lng=point.getLng();
+    const {map,marker}=displayMap(maps,lat,lng);
+    map.setCenter(point);
+    map.setLevel(4);
+    marker.setPosition(point);
+    marker.setMap(map);
+    result.textContent='가까운 역과 학교를 찾는 중이에요.';
+    const places=new maps.services.Places();
+    const [nearby,addresses]=await Promise.all([
+      registering?[]:Promise.all(nearbyCategories.map(async ([code,label])=>{
+        const options={location:point,radius:2000,sort:maps.services.SortBy.DISTANCE,size:1};
+        const rows=await mapService(maps,done=>places.categorySearch(code,done,options));
+        const row=rows[0];
+        return row&&/^\d+$/.test(row.distance)?{code,label,name:row.place_name,meters:Number(row.distance)}:null;
+      })),
+      pin?mapService(maps,done=>geocoder.coord2Address(lng,lat,done)).catch(()=>[]):[]
+    ]);
+    if(!locationCurrent(request,id))return;
+    locationDraft={lat,lng,address:address||addresses[0]?.road_address?.address_name||addresses[0]?.address?.address_name||'',places:nearby.filter(Boolean)};
+    if(registering)result.textContent=locationDraft.address||'지도에서 지정한 위치';
+    else result.innerHTML=locationSummary(locationDraft);
+    saveButton.hidden=false;
+  } catch(error) {
+    if(locationCurrent(request,id))result.textContent=error.message;
+  }
+}
+function renderDetail(item) {
+  const memo=`<form data-form="visit-memo"><label>방문 메모<textarea name="note" rows="2" maxlength="1000">${esc(item.note)}</textarea></label><button>메모 저장</button></form>`;
+  const visitRows=checks.map(([key,label,tip])=>`<fieldset class="visit-row"><legend>${label}</legend>
+    <details class="visit-tip"><summary aria-label="${label} 확인 방법">${label}</summary><p class="muted">${tip}</p></details>
+    <div class="visit-options">${results.map(result=>`<label class="visit-option"><input type="radio" name="${key}" value="${result}" data-visit-check${result===(item.checks[key]||'미확인')?' checked':''}><span>${result}</span></label>`).join('')}</div>
+  </fieldset>`).join('');
+  return `<div class="panel guide visit"><button class="quiet" data-action="list">← 후보 목록</button>
+  <small class="context">${esc(displayName(item))}</small>
+  ${title('집 방문 체크리스트')}
+  ${visitProgress(item)}
+  <details class="visit-checklist" open><summary>점검 항목 보기</summary>
+    <p class="muted">항목 이름을 누르면 확인 방법을 볼 수 있어요.</p>
+    ${visitRows}
+  </details>
+  ${item.note.trim()?memo:`<details><summary>방문 메모 남기기</summary>${memo}</details>`}
+  <details><summary>매물 정보 수정하기</summary><form data-form="property"><div class="fields">
+    ${field('매물 이름','name',item.name,'text','required maxlength="60"')}
+    ${field('별명 (선택)','nickname',item.nickname,'text','maxlength="40" placeholder="예: 햇빛 잘 드는 집"')}
+    ${select('계약 유형','kind',item.kind,['','전세','월세'])}
+    ${amountField('보증금 (만 원)','deposit',item.deposit)}
+    ${amountField('월세 (만 원)','rent',item.rent)}
+    ${field('주소 또는 위치 메모','address',item.address,'text','maxlength="160"')}
+  </div><button>매물 정보 저장</button></form></details>
+  <details><summary>대표 사진 등록하기</summary>
+    <form data-form="listing-photo">
+      <label>매물 사진<input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label>
+      <button>사진 저장</button><p class="field-error" data-photo-error role="alert"></p>
+    </form>
+  </details>
+  <details><summary>매물 위치</summary>${action(item.location?'지도 보기':'지도 위치 등록하기','location',false,item.id)}</details>
+  <hr><div class="property-actions">
+    ${action(item.signed?'계약 후 할 일 보기':'이 집으로 계약할게요',item.signed||state.chosen===item.id?'guide':'choose',true,item.id)}
+    ${!item.signed?action('이미 계약서를 작성했어요','record-signed',false,item.id):''}
+  </div>
+  ${!item.signed&&state.chosen!==item.id?`<dialog id="contract-dialog" aria-labelledby="contract-dialog-title" aria-describedby="contract-dialog-copy">
+    <h2 id="contract-dialog-title">이 집의 계약 준비를 시작할까요?</h2>
+    <p id="contract-dialog-copy"><strong>${esc(displayName(item))}</strong><br>집주인에게 확인할 조건부터 차근차근 안내해요.</p>
+    <div class="contract-actions">${action('계약 준비 시작','confirm-contract',true,item.id)}${action('취소','cancel-contract')}</div>
+  </dialog>`:''}</div>`;
+}
+function checkedCount(item) {
+  return checks.filter(([key])=>item.checks[key]&&item.checks[key]!=='미확인').length;
+}
+function visitProgress(item) {
+  const count=checkedCount(item);
+  return `<div class="visit-progress"><p aria-live="polite"><strong data-visit-count>${count}</strong> / ${checks.length} 확인</p>
+    <progress value="${count}" max="${checks.length}" aria-label="방문 점검 진행률"></progress></div>`;
+}
+function questions(item) {
+  const lines=[];
+  if(item.checks.leak==='문제 있음') lines.push('누수 흔적의 원인을 확인해 주실 수 있나요? 수리가 필요하면 입주 전에 마칠 수 있을까요?');
+  if(item.checks.bugs==='문제 있음') lines.push('벌레가 나온 적이 있나요? 입주 전에 방제나 틈새 보수가 가능한가요?');
+  if(item.checks.water==='문제 있음') lines.push('수압이 약한 원인을 확인해 주실 수 있나요? 입주 전에 점검이 가능한가요?');
+  if(item.checks.light==='문제 있음') lines.push('다른 시간대에도 방문해서 채광을 확인할 수 있을까요?');
+  if(item.checks.drain==='문제 있음') lines.push('배수구 물이 잘 내려가지 않았는데 입주 전에 점검해 주실 수 있나요?');
+  if(item.checks.noise==='문제 있음') lines.push('소음이 주로 언제 나는지, 다른 시간에 다시 확인할 수 있는지 알려주실 수 있나요?');
+  if(item.checks.climate==='문제 있음') lines.push('냉난방이나 온수에 문제가 있었는데 입주 전에 수리할 수 있나요?');
+  return lines;
+}
+function taskList(item,entries) {
+  const visible=entries.filter(([key])=>!item.done[key]);
+  if(!visible.length)return '<p class="muted">이 단계에서 확인할 일을 모두 마쳤어요.</p>';
+  return visible.map(([key,label,help])=>`<div class="task"><label class="inline"><input type="checkbox" data-task="${key}" ${item.done[key]?'checked':''}>${label}</label>${help?`<p class="muted">${help}</p>`:''}</div>`).join('');
+}
+function prepQuestions(item) {
+  return [
+    {id:'terms',icon:'💬',title:'집주인과 보증금과 입주일을 확인했나요?',help:`중개사에게 “이 집 아직 계약할 수 있나요? 최종 보증금${item.kind==='월세'?'과 월세':''}, 입주 가능한 날짜를 확인해 주실 수 있나요?”라고 물어보세요.`},
+    ...(questions(item).length||item.reply||item.prepQuestion==='repair'?[{id:'repair',icon:'🔧',title:'집주인에게 하자에 대해 물어봤나요?',help:'방문 때 기록한 문제를 기준으로 수리 여부와 가능한 날짜를 물어보세요.'}]:[]),
+    {id:'register',icon:'📄',title:'등기사항증명서를 확인했나요?',help:'집의 소유자와 권리관계를 확인하는 서류예요. 이해하기 어려운 내용은 계약 전에 중개사에게 설명을 요청하세요.'},
+    {id:'owner',icon:'👤',title:'누구와 계약하는지 확인했나요?',help:'계약하러 나오는 사람이 누구인지 중개사에게 물어보고, 당일에는 신분과 권한을 확인해요.'},
+    item.kind==='전세'
+      ?{id:'type',icon:'🏠',title:'대출과 반환보증이 필요한지 확인했나요?',help:'대출이나 반환보증이 필요하다면 이 집과 계약 조건으로 가능한지 은행이나 보증기관에 문의해요.'}
+      :{id:'type',icon:'💳',title:'월세 내는 날과 관리비를 확인했나요?',help:'월세를 매달 언제 내는지, 관리비에 전기나 수도처럼 어떤 비용이 포함되는지 물어보세요.'},
+    {id:'date',icon:'📅',title:'계약하는 날이 정해졌나요?',help:'날짜를 정하면 전날과 당일에 볼 준비 안내를 만들어요.'}
+  ];
+}
+function prepIndex(item,steps) {
+  const saved=steps.findIndex(step=>step.id===item.prepQuestion);
+  if(saved>=0)return saved;
+  const pending=steps.findIndex(step=>!item.done[step.id]&&(step.id!=='terms'||item.step===0));
+  return pending>=0?pending:steps.length-1;
+}
+function setPrepQuestion(item,step) {
+  item.prepQuestion=step.id;
+  item.step=step.id==='terms'?0:1;
+}
+function renderPreparation(item) {
+  const steps=prepQuestions(item);
+  const index=prepIndex(item,steps);
+  const question=steps[index];
+  const isDate=question.id==='date';
+  const waiting=item.prepWaiting===question.id;
+  const repair=question.id==='repair';
+  return `<section class="wizard">
+    <button class="quiet" data-action="list">후보 목록</button>
+    <small>${esc(displayName(item))} · 계약 준비 · ${index+1}/${steps.length}</small>
+    <span class="wizard-icon" aria-hidden="true">${question.icon}</span>
+    ${title(question.title)}
+    ${question.id==='register'?action('📷 등기사항증명서 사진 분석','registry-scan',true,item.id):''}
+    ${question.id==='register'?`<details>
+      <summary>등기사항증명서가 뭔가요?</summary>
+      <p>흔히 등기부등본이라고 부르는 서류예요. 집의 주소와 소유자, 집에 설정된 권리를 확인할 수 있어요.</p>
+      <ul>
+        <li><strong>표제부</strong>에서 계약하려는 집의 주소와 동·호수를 대조해요.</li>
+        <li><strong>갑구</strong>에서 현재 소유자와 압류 같은 기록을 확인해요.</li>
+        <li><strong>을구</strong>에서 근저당권처럼 집을 담보로 설정한 권리가 있는지 확인해요.</li>
+      </ul>
+    </details>`:''}
+    ${isDate?`<p class="muted">${question.help}</p><form data-form="date">
+      ${field('예정 계약일','date',item.date,'date','required')}<button class="primary">날짜 저장</button>
+    </form>
+    ${item.date?action('계약 당일 확인할 일 보기','prep-finish',true):''}
+    <button class="quiet wizard-skip" data-action="prep-later">아직 날짜가 안 정해졌어요</button>
+    ${!item.date?action('계약 당일 안내 미리 보기','prep-finish'):''}`:
+    `<div class="choices">${action('확인했어요','prep-confirm',true)}${action('아직 확인하지 못했어요','prep-help')}</div>
+    ${waiting?`<div class="note"><h3>이렇게 확인해 보세요</h3><p>${esc(question.help)}</p></div>`:''}
+    ${repair?`<div class="note"><h3>집주인에게 물어볼 질문</h3>${questions(item).map(line=>`<p>${esc(line)}</p>`).join('')}${item.note?`<small>내 방문 기록 · ${esc(item.note)}</small>`:''}</div>
+    <details${item.reply?' open':''}><summary>받은 답변 기록하기</summary><form data-form="reply"><label>집주인 답변<textarea name="reply" rows="2" maxlength="1000">${esc(item.reply)}</textarea></label><button>답변 저장</button></form></details>`:''}
+    ${waiting?action('확인하고 나중에 이어하기','prep-later'):''}`}
+    ${index>0?`<div class="previous-step"><button class="quiet" data-action="prep-back">← 이전 질문</button></div>`:''}
+  </section>`;
+}
+function renderGuide(item) {
+  if(!item.kind)return `<section class="wizard">${action('← 후보 목록','list')}
+    ${title('전세인가요, 월세인가요?')}<p class="muted">계약 유형에 맞는 준비를 안내해요.</p>
+    <div class="choices">${action('전세','guide-kind',true,'전세')}${action('월세','guide-kind',false,'월세')}</div>
+    ${action('아직 몰라요','detail',false,item.id)}</section>`;
+  const step=item.step;
+  if(step<=1)return renderPreparation(item);
+  const prompts=questions(item);
+  const tasks=[
+    null,null,
+    [['match','최종 조건이 합의한 내용과 같아요',''],...(prompts.length||item.reply?[['repair','합의한 수리 내용이 계약서에 적혀 있는지 확인했어요','']]:[])],
+    [['report','해당되는 임대차 신고를 확인했어요',''],['fixed','확정일자 부여 여부를 확인했어요','']],
+    [['recheck','잔금 전 권리관계를 다시 확인했어요',''],['keys','열쇠를 받고 집 상태를 기록했어요','']],
+    [['moveReport','전입신고 결과를 확인했어요',''],['condition','입주 후 하자를 기록했어요',''],['guarantee','해당되는 보증 절차를 확인했어요','']]
+  ][step];
+  return `<div class="panel guide">
+  ${action('← 후보 목록','list')} <span class="badge">${esc(item.name)} · ${stageNames[step]}</span>
+  ${title(labels[step])}
+  ${taskList(item,tasks)}
+  ${step===2?`<hr><p>비교할 때 적은 조건 · 보증금 ${money(item.deposit)}${item.kind==='월세'?' / 월 '+money(item.rent):''}</p>
+  ${item.reply?`<div class="note">집주인 답변 · ${esc(item.reply)}</div>`:''}
+  <form data-form="signed"><div class="fields">
+  ${field('실제 계약일','signed',item.signed||item.date,'date','required')}
+  ${amountField('최종 보증금 (만 원)','finalDeposit',item.finalDeposit||item.deposit,true)}
+  ${item.kind==='월세'?amountField('최종 월세 (만 원)','finalRent',item.finalRent||item.rent,true)+field('월세 납부일 (매월)','payday',item.payday,'number','min="1" max="31" required'):''}
+  ${field('잔금일','balance',item.balance,'date')}
+  </div><button class="primary">계약서를 작성했어요</button></form>`:''}
+  ${step>=4&&item.signed?`<p class="muted">계약일 ${esc(item.signed)} · 잔금일 ${esc(item.balance||'미입력')}</p>`:''}
+  ${step===4?`<form data-form="move">${field('실제 입주일','move',item.move,'date')}<button>입주일 저장</button></form>`:''}
+  ${step>=4&&(!item.done.report||!item.done.fixed)?`<div class="note">계약 직후에 남은 항목이 있어요. ${action('다시 확인하기','post')}</div>`:''}
+  <hr><div class="row">
+  ${step===3||step===4?action(step===3?'잔금·입주 준비 보기':'입주 후 할 일 보기','next',true):''}
+  ${step===5?action('후보 목록으로','list',true):''}
+  </div><div class="previous-step"><button class="quiet" data-action="prev">← 이전 단계</button></div></div>`;
+}
+function renderCelebration(item) {
+  return `<section class="wizard celebration">
+    <span class="wizard-icon" aria-hidden="true">🎉</span>
+    <small>${esc(displayName(item))}</small>
+    ${title('계약을 마쳤어요!')}
+    <p class="muted">집을 고르고 계약서까지 작성했네요. 축하해요!</p>
+    <div class="choices">${action('계약 후 할 일 보기','guide',true,item.id)}</div>
+    <button class="quiet" data-action="list">오늘은 여기까지</button>
+  </section>`;
+}
+function renderAccount() {
+  const available=!!authClient;
+  return `<section class="wizard${accountUser?'':' sign-in'}">
+    ${accountReturn&&(!accountUser||accountReady)?action('← 돌아가기','account-back'):''}
+    ${title(accountUser?'내 계정':'어떻게 로그인할까요?')}
+    ${accountError?`<p class="account-message" role="alert">${esc(accountError)}</p>`:''}
+    ${accountUser?`<p>${esc(accountUser.email||'로그인한 계정')}</p>
+      ${accountReady?'<p class="muted">같은 계정으로 다른 기기에서도 기록을 이어서 볼 수 있어요.</p>':
+        action('기록 다시 불러오기','cloud-reload',true)}
+      ${accountReady&&!guestImport&&readGuestSearch().items.length?`<div class="note"><p>이 기기에 비회원으로 저장한 매물이 있어요.</p>
+        ${action('비회원 기록을 내 계정에 옮기기','import-guest',true)}</div>`:''}
+      ${syncProblem?`<div class="note"><h3>계정에 저장하지 못했어요</h3>
+        <p>${syncProblem==='conflict'?'다른 기기의 새 기록을 확인했어요. 이 기기의 변경 사항이 서버 기록을 덮어쓰지 않도록 저장을 멈췄어요.':'연결을 확인하고 다시 저장해 주세요.'}</p>
+        ${syncProblem==='network'?action('다시 저장','cloud-retry',true):''}
+        ${action('서버 기록 불러오기','cloud-reload')}</div>`:''}
+      <div class="row">${accountReady?action('집 구하기 이어가기','welcome'):''}${action('로그아웃','sign-out')}</div>`:
+    `<p class="muted">로그인하면 휴대폰과 PC에서 같은 기록을 볼 수 있어요.</p>
+      ${!available?'<div class="sign-in-gap" aria-hidden="true"></div>':''}
+      ${emailForCode?`<form class="account-form" data-form="verify-code">
+        <p>인증코드를 보낸 주소 · ${esc(emailForCode)}</p>
+        ${field('이메일 인증코드','code','','text','required inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"')}
+        <button class="primary" ${accountBusy?'disabled':''}>코드 확인</button>
+      </form>
+      <div class="row">${action('코드 다시 받기','resend-code')}${action('이메일 바꾸기','change-email')}</div>`:
+      `<div class="choices">
+        <button data-action="social-login" ${!available||accountBusy?'disabled':''}>Google로 계속하기</button>
+      </div>
+      <form class="account-form" data-form="email-code">
+        <label><input type="email" name="email" value="${esc(accountEmail)}" aria-label="이메일" placeholder="이메일을 입력하세요." required maxlength="254" autocomplete="email"></label>
+        <button class="primary" ${!available||accountBusy?'disabled':''}>이메일로 코드 받기</button>
+      </form>`}
+      <hr>${action('비회원으로 계속하기','guest-dialog')}
+      <dialog id="guest-dialog" aria-labelledby="guest-title">
+        <h2 id="guest-title">비회원으로 계속할까요?</h2>
+        <p>진행 기록이 이 디바이스에 저장됩니다.</p>
+        <div class="guest-actions">${action('확인','guest-confirm',true)}${action('취소','guest-cancel')}</div>
+      </dialog>
+    `}
+  </section>`;
+}
+async function runAccountAction(work) {
+  if(accountBusy||!authClient)return;
+  accountBusy=true;
+  accountError='';
+  app.setAttribute('aria-busy','true');
+  try {await work();}
+  catch(error){accountError=error.message;}
+  finally {
+    accountBusy=false;
+    app.removeAttribute('aria-busy');
+    if(screen==='account')render();
+  }
+}
+function requestCode(email) {
+  accountEmail=email;
+  return runAccountAction(async ()=>{
+    const {error}=await authClient.auth.signInWithOtp({email});
+    if(error)throw Error('코드를 보내지 못했어요. 주소를 확인하고 잠시 뒤 다시 시도해 주세요.');
+    emailForCode=email;
+  });
+}
+function importGuestSearch() {
+  if(!accountReady||syncProblem||syncing||pendingCloud)return;
+  const guest=readGuestSearch();
+  if(!guest.items.length)return;
+  guest.importId??=crypto.randomUUID();
+  const raw=JSON.stringify(guest);
+  try {localStorage.setItem(storageKey,raw);}
+  catch {
+    accountError='이 기기의 기록을 옮길 준비를 하지 못했어요.';
+    render();
+    return;
+  }
+  if(state.guestImports?.includes(guest.importId)){
+    try {localStorage.removeItem(storageKey);} catch {}
+    render();
+    return;
+  }
+  guestImport={id:guest.importId,raw};
+  const hasItems=state.items.length>0;
+  const importedIds=new Map(guest.items.map(item=>[item.id,crypto.randomUUID()]));
+  state.items.push(...guest.items.map(item=>({...item,id:importedIds.get(item.id)})));
+  state.chosen??=importedIds.get(guest.chosen)??null;
+  state.last??=importedIds.get(guest.last)??null;
+  if(!hasItems){
+    state.compare=guest.compare;
+  }
+  state.guestImports=[...(state.guestImports??[]),guest.importId];
+  save();
+  render();
+}
+function renderRegistryScan(item) {
+  return `<section class="wizard">
+    <small>${esc(displayName(item))} · 계약 준비</small>
+    ${title('등기사항증명서 사진 분석')}
+    <p>한 페이지가 선명하게 보이는 사진을 골라요. 사진은 이 브라우저에서 읽어요. 처음 실행할 때 한글 인식 도구를 내려받기 위해 인터넷 연결이 필요해요.</p>
+    <form data-form="registry-scan">
+      <label>등기사항증명서 사진<input type="file" name="image" accept="image/jpeg,image/png,image/webp" required></label>
+      <button class="primary">사진 분석하기</button>
+    </form>
+    <div data-scan-result role="status" aria-live="polite"></div>
+    <div class="previous-step">${action('← 등기 확인으로 돌아가기','guide',false,item.id)}</div>
+  </section>`;
+}
+const registryTerms=[
+  ['근저당권',/근저당권|근저당/,'집을 담보로 설정할 수 있는 권리예요.','해당 줄이 말소됐는지, 남아 있다면 채권최고액과 내 보증금보다 우선하는 권리를 확인해요.'],
+  ['채권최고액',/채권최고액/,'근저당으로 담보하는 채권의 상한이에요.','현재 대출 잔액은 별도로 확인하고, 등기에 적힌 금액은 원본과 대조해요.'],
+  ['압류',/(?<!가)압류/,'채권 회수 등을 위해 재산 처분에 제한을 두는 기록일 수 있어요.','갑구에서 기록의 대상과 말소 여부를 확인하고 계약금 송금 전에 설명을 받아요.'],
+  ['가압류',/가압류/,'재산을 미리 보전하기 위한 조치예요.','등기의 해당 기록이 남아 있는지 확인하고 계약 전에 전문가에게 문의해요.'],
+  ['신탁',/신탁/,'부동산의 소유권과 관리 권한을 확인해야 하는 기록이에요.','신탁원부에서 계약할 권한이 있는 사람과 필요한 동의 여부를 확인해요.'],
+  ['경매',/경매개시결정|경매/,'부동산을 경매로 매각하는 절차와 관련된 문구예요.','갑구에서 경매개시결정이 현재 남아 있는지 확인해요.'],
+  ['임차권등기',/임차권등기|임차권설정/,'세입자의 임차권이 등기에 기록된 경우예요.','기록이 남아 있는지와 내 보증금에 앞서는 권리가 있는지 확인해요.'],
+  ['전세권',/전세권/,'등기에 설정할 수 있는 전세 관련 권리예요.','전세권의 대상 범위, 순위, 말소 여부를 확인해요.']
+];
+function findRegistryTerms(text) {
+  const lines=text.normalize('NFKC').split(/\r?\n/).map(line=>line.replace(/\s/g,''));
+  return registryTerms.filter(([,pattern])=>lines.some(line=>pattern.test(line)));
+}
+let ocrLibrary;
+function loadOcrLibrary() {
+  if(window.Tesseract?.createWorker)return Promise.resolve(window.Tesseract);
+  ocrLibrary??=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    const fail=()=>{
+      clearTimeout(timeout);
+      script.remove();
+      reject(Error('한글 인식 도구를 내려받지 못했어요. 인터넷 연결을 확인해 주세요.'));
+    };
+    const timeout=setTimeout(fail,20000);
+    script.src='https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js';
+    script.onerror=fail;
+    script.onload=()=>{
+      if(!window.Tesseract?.createWorker)return fail();
+      clearTimeout(timeout);
+      resolve(window.Tesseract);
+    };
+    document.head.append(script);
+  }).catch(error=>{ocrLibrary=null;throw error;});
+  return ocrLibrary;
+}
+async function scanRegistry(form,values) {
+  const result=app.querySelector('[data-scan-result]');
+  if(!values.image?.size||values.image.size>8*1024*1024||!['image/jpeg','image/png','image/webp'].includes(values.image.type)){
+    result.textContent='8MB 이하의 JPG, PNG 또는 WebP 사진을 골라 주세요.';
+    return;
+  }
+  const button=form.querySelector('button');
+  button.disabled=true;
+  let worker;
+  result.textContent='한글 인식 도구를 준비하고 있어요.';
+  try {
+    const engine=await loadOcrLibrary();
+    if(!form.isConnected)return;
+    worker=await engine.createWorker('kor',1,{logger:progress=>{
+      if(progress.status==='recognizing text')result.textContent='사진에서 글자를 읽고 있어요. '+Math.round(progress.progress*100)+'%';
+    },errorHandler:()=>{}});
+    if(!form.isConnected)return;
+    const {data}=await worker.recognize(values.image);
+    const findings=findRegistryTerms(data.text);
+    result.innerHTML=`<h2>사진에서 찾은 용어</h2>
+      ${data.confidence<65?'<p>일부 글자를 읽기 어려워요. 밝고 선명하게 다시 찍으면 더 잘 읽을 수 있어요.</p>':''}
+      ${findings.length?findings.map(([term,,meaning,check])=>`<div class="note">
+        <h3>${term}</h3><p><strong>뜻</strong> · ${meaning}</p>
+        <p><strong>확인할 점</strong> · ${check}</p></div>`).join(''):
+        '<p>이 사진에서 표시할 용어를 찾지 못했어요. 인식에서 빠진 문구가 있을 수 있으니 원본도 확인해 주세요.</p>'}
+      <p class="muted">표시된 용어를 원본에서 찾고, 해당 기록이 말소됐는지 확인해 주세요.</p>`;
+  } catch {
+    result.textContent='사진을 읽지 못했어요. 인터넷 연결을 확인하거나 더 선명한 사진으로 다시 시도해 주세요.';
+  } finally {
+    if(worker)await worker.terminate().catch(()=>{});
+    button.disabled=false;
+  }
+}
+function render() {
+  const item=state.items.find(p=>p.id===active);
+  updateAccountControls();
+  if(accountLoading) app.innerHTML='<section class="wizard"><h1>기록을 불러오고 있어요</h1></section>';
+  else if(screen==='account'||(accountUser&&!accountReady)) app.innerHTML=renderAccount();
+  else if(screen==='registration') app.innerHTML=renderRegistration();
+  else if(screen==='registry-scan'&&item) app.innerHTML=renderRegistryScan(item);
+  else if(screen==='location'&&item) app.innerHTML=renderLocation(item);
+  else if(screen==='welcome') app.innerHTML=renderWelcome();
+  else if(screen==='picker') app.innerHTML=renderPicker();
+  else if(screen==='detail') app.innerHTML=renderDetail(item);
+  else if(screen==='celebration'&&item) app.innerHTML=renderCelebration(item);
+  else if(screen==='guide'&&item) app.innerHTML=renderGuide(item);
+  else app.innerHTML=renderList();
+  app.insertAdjacentHTML('beforeend',`<footer><div class="status" role="status">${saveError?'이 브라우저에 저장할 수 없어요.':''}</div></footer>`);
+}
+accountButton.addEventListener('click',()=>{
+  if(accountLoading||screen==='account')return;
+  accountReturn={screen,id:active};
+  go('account');
+});
+app.addEventListener('click',event=>{
+  const button=event.target.closest('[data-action]');
+  if(!button)return;
+  const {action:command,id}=button.dataset;
+  const item=state.items.find(p=>p.id===active);
+  switch(command) {
+    case 'registry-scan': go('registry-scan',id);break;
+    case 'start-delete':
+      deleteMode=true;
+      render();
+      app.querySelector('h1').focus();
+      break;
+    case 'cancel-delete':
+      go('list');
+      app.querySelector('[data-action="start-delete"]')?.focus();
+      break;
+    case 'confirm-delete':
+      if(!deleteMode||!deleteSelection.size)break;
+      state.items=state.items.filter(item=>!deleteSelection.has(item.id));
+      if(deleteSelection.has(state.chosen))state.chosen=null;
+      if(deleteSelection.has(state.last))state.last=null;
+      save();
+      go('list');
+      break;
+    case 'account-back':
+      emailForCode='';
+      accountError='';
+      if(accountReturn)go(accountReturn.screen,accountReturn.id);
+      break;
+    case 'guest-dialog': app.querySelector('#guest-dialog').showModal();break;
+    case 'guest-cancel': app.querySelector('#guest-dialog').close();break;
+    case 'guest-confirm':
+      app.querySelector('#guest-dialog').close();
+      emailForCode='';
+      accountError='';
+      go('welcome');break;
+    case 'import-guest': importGuestSearch();break;
+    case 'social-login':
+      void runAccountAction(async ()=>{
+        const redirectTo=location.origin+location.pathname;
+        const {error}=await authClient.auth.signInWithOAuth({provider:'google',options:{redirectTo}});
+        if(error)throw Error('로그인 페이지를 열지 못했어요. 연결 설정을 확인해 주세요.');
+      });break;
+    case 'resend-code': if(emailForCode)void requestCode(emailForCode);break;
+    case 'change-email': emailForCode='';accountError='';render();break;
+    case 'cloud-retry': syncProblem='';void syncCloud();render();break;
+    case 'cloud-reload':
+      if(!accountUser||syncing)break;
+      if(pendingCloud&&!confirm('이 기기에서 아직 저장되지 않은 변경 사항을 버리고 서버 기록을 불러올까요?'))break;
+      void loadCloud(accountUser);break;
+    case 'sign-out':
+      if(pendingCloud||syncing){
+        accountError='저장 중인 변경 사항이 있어요. 저장 결과를 먼저 확인해 주세요.';
+        render();break;
+      }
+      void runAccountAction(async ()=>{
+        const {error}=await authClient.auth.signOut({scope:'local'});
+        if(error)throw Error('로그아웃하지 못했어요. 다시 시도해 주세요.');
+        emailForCode='';
+        accountEmail='';
+        if(accountUser)await loadCloud(null);
+      });break;
+    case 'welcome': case 'list': go(command); break;
+    case 'location': ++locationRequest;locationDraft=null;go('location',id);break;
+    case 'pick-map': lookupLocation();break;
+    case 'save-location':
+      if(!locationDraft)break;
+      if(screen==='registration'){
+        registration.location=locationDraft;
+        registration.address=locationDraft.address;
+        registrationMove(1);break;
+      }
+      if(!item)break;
+      item.location=locationDraft;
+      if(locationDraft.address)item.address=locationDraft.address;
+      save();go('detail',item.id);break;
+    case 'search-start': go('list'); break;
+    case 'visit-start': case 'prepare-start': case 'signed-start':
+      intent=command.split('-')[0];go('picker');break;
+    case 'pick': {
+      const selected=state.items.find(p=>p.id===id);
+      if(!selected)break;
+      state.last=id;
+      if(intent==='visit'){save();go('detail',id);break;}
+      state.chosen=id;
+      if(intent==='signed'&&!selected.signed)selected.step=2;
+      save();go('guide',id);break;
+    }
+    case 'add':
+      registration=fresh('','','','','');
+      registrationStep='name';
+      registrationReturn=screen==='picker'?'picker':'list';
+      go('registration');break;
+    case 'registration-back': registrationMove(-1);break;
+    case 'registration-photo':
+      app.querySelector(`[data-registration-photo="${id}"]`).click();
+      break;
+    case 'registration-keep-photo': registrationMove(1);break;
+    case 'registration-kind':
+      registration.kind=id;
+      registrationMove(1);break;
+    case 'registration-skip':
+      registration[registrationStep]='';
+      if(registrationStep==='address')delete registration.location;
+      registrationMove(1);break;
+    case 'save-address': {
+      const input=app.querySelector('[data-form="location-search"] input[name="query"]');
+      if(!input.value.trim()){input.reportValidity();break;}
+      const address=input.value.trim();
+      if(registration.address!==address)delete registration.location;
+      registration.address=address;
+      registrationMove(1);break;
+    }
+    case 'registration-finish':
+      registration.id=crypto.randomUUID?.()??Array.from(crypto.getRandomValues(new Uint8Array(16)),byte=>byte.toString(16).padStart(2,'0')).join('');
+      registration.name=registration.name.trim()||nextCandidateName();
+      if(registration.kind!=='월세')registration.rent='';
+      state.items.push(registration);
+      state.last=registration.id;
+      registration=null;
+      save();go(registrationReturn);break;
+    case 'guide-kind':
+      item.kind=id;
+      save();go('guide',item.id);break;
+    case 'detail': case 'guide': state.last=id;save();go(command,id);break;
+    case 'choose': app.querySelector('#contract-dialog').showModal();break;
+    case 'cancel-contract': app.querySelector('#contract-dialog').close();break;
+    case 'confirm-contract': case 'record-signed': {
+      const selected=state.items.find(p=>p.id===id);
+      if(!selected)break;
+      if(command==='confirm-contract')app.querySelector('#contract-dialog').close();
+      if(command==='record-signed')selected.step=2;
+      state.chosen=id;state.last=id;save();go('guide',id);break;
+    }
+    case 'prep-back': case 'prep-confirm': case 'prep-help': case 'prep-later': {
+      const steps=prepQuestions(item);
+      const index=prepIndex(item,steps);
+      const question=steps[index];
+      setPrepQuestion(item,question);
+      if(command==='prep-back')setPrepQuestion(item,steps[index-1]);
+      if(command==='prep-confirm'){
+        item.done[question.id]=true;
+        if(item.prepWaiting===question.id)delete item.prepWaiting;
+        setPrepQuestion(item,steps[index+1]);
+      }
+      if(command==='prep-help'||command==='prep-later')item.prepWaiting=question.id;
+      save();
+      if(command==='prep-later')go('list');
+      else go('guide',item.id);
+      break;
+    }
+    case 'prep-finish':
+      item.step=2;
+      save();go('guide',item.id);break;
+    case 'prev': case 'next': case 'post':
+      item.step=command==='post'?3:item.step+(command==='prev'?-1:1);
+      save();go('guide',item.id);break;
+  }
+});
+app.addEventListener('input',event=>{
+  const input=event.target;
+  if(screen==='registration'&&input.form?.dataset.form==='registration-value')registration[registrationStep]=input.value;
+  if(input.dataset.amountError&&input.hasAttribute('aria-invalid'))showAmountError(input);
+});
+function showAmountError(input) {
+  const validity=input.validity;
+  const message=validity.rangeUnderflow?'0 이상 입력해 주세요.':
+    validity.badInput?'숫자로 입력해 주세요.':
+    validity.valueMissing?'금액을 입력해 주세요.':
+    validity.stepMismatch?'소수 둘째 자리까지 입력해 주세요.':'';
+  const error=document.getElementById(input.dataset.amountError);
+  error.hidden=!message;
+  error.textContent=message;
+  if(message)input.setAttribute('aria-invalid','true');
+  else input.removeAttribute('aria-invalid');
+}
+app.addEventListener('invalid',event=>{
+  const input=event.target;
+  if(!input.dataset.amountError)return;
+  event.preventDefault();
+  showAmountError(input);
+  if(input.form.querySelector(':invalid')===input)input.focus();
+},true);
+app.addEventListener('change',event=>{
+  const input=event.target;
+  if(input.dataset.registrationPhoto){
+    const file=input.files[0];
+    input.value='';
+    if(!file)return;
+    const draft=registration;
+    const error=app.querySelector('[data-registration-photo-error]');
+    void readListingPhoto(file).then(photo=>{
+      if(!error.isConnected||registration!==draft)return;
+      draft.photo=photo;
+      registrationMove(1);
+    }).catch(reason=>{error.textContent=reason.message;});
+    return;
+  }
+  if(deleteMode&&input.dataset.deleteId){
+    if(input.checked)deleteSelection.add(input.dataset.deleteId);
+    else deleteSelection.delete(input.dataset.deleteId);
+    app.querySelector('[data-delete-count]').textContent='선택한 매물 '+deleteSelection.size+'개';
+    app.querySelector('[data-action="confirm-delete"]').hidden=!deleteSelection.size;
+    return;
+  }
+  if(input.hasAttribute('data-visit-check')) {
+    const item=state.items.find(p=>p.id===active);
+    item.checks[input.name]=input.value;
+    const count=checkedCount(item);
+    app.querySelector('[data-visit-count]').textContent=count;
+    app.querySelector('.visit-progress progress').value=count;
+    save();
+  }
+  if(input.dataset.task) {
+    const item=state.items.find(p=>p.id===active);
+    item.done[input.dataset.task]=input.checked;save();
+    if(input.checked){
+      const row=input.closest('.task');
+      const focused=document.activeElement===input;
+      input.disabled=true;
+      const next=app.querySelector('.task input:not(:disabled), [data-action="next"]');
+      if(focused)(next||app.querySelector('h1')).focus({preventScroll:true});
+      const remove=()=>{
+        if(!row.isConnected)return;
+        const container=row.parentElement;
+        row.remove();
+        if(!container.querySelector('.task')){
+          const message=document.createElement('p');
+          message.className='muted';
+          message.textContent='이 단계에서 확인할 일을 모두 마쳤어요.';
+          container.querySelector('h1').after(message);
+        }
+      };
+      if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)remove();
+      else {
+        row.classList.add('task-done');
+        setTimeout(remove,650);
+      }
+    }
+  }
+});
+app.addEventListener('submit',event=>{
+  const form=event.target;
+  if(!form.dataset.form)return;
+  event.preventDefault();
+  const values=Object.fromEntries(new FormData(form));
+  let item=state.items.find(p=>p.id===active);
+  switch(form.dataset.form) {
+    case 'registry-scan': void scanRegistry(form,values);return;
+    case 'listing-photo': void saveListingPhoto(item,form,values.photo);return;
+    case 'email-code': void requestCode(values.email.trim());return;
+    case 'verify-code':
+      if(!emailForCode)return;
+      void runAccountAction(async ()=>{
+        const {error}=await authClient.auth.verifyOtp({email:emailForCode,token:values.code.trim(),type:'email'});
+        if(error)throw Error('코드가 맞는지 확인해 주세요. 만료됐다면 다시 받을 수 있어요.');
+        emailForCode='';
+      });return;
+    case 'registration-value':
+      if(!values.value.trim())return;
+      registration[registrationStep]=values.value.trim();
+      registrationMove(1);return;
+    case 'location-search':
+      if(values.query.trim())lookupLocation({query:values.query.trim()});
+      return;
+    case 'save-manual-address': {
+      const address=values.address.trim();
+      if(!address)return;
+      const target=screen==='registration'?registration:item;
+      if(target.address!==address)delete target.location;
+      target.address=address;
+      if(screen==='registration')registrationMove(1);
+      else {save();go('detail',item.id);}
+      return;
+    }
+    case 'visit-memo':
+      item.note=values.note;
+      save();render();
+      showToast(saveError?'방문 메모를 저장할 수 없어요.':accountUser?'방문 메모를 계정에 저장 중이에요.':'방문 메모를 저장했어요.');
+      return;
+    case 'property':
+      if(!values.name.trim()) {form.elements.name.focus();return;}
+      if(item.address!==values.address)delete item.location;
+      for(const key of ['name','nickname','kind','deposit','rent','address'])item[key]=values[key];
+      item.nickname=item.nickname.trim();
+      state.last=item.id;
+      save();go('detail',item.id);
+      app.querySelector('[role=status]').textContent=saveError?'저장할 수 없어요.':'이 매물의 기록을 저장했어요.';return;
+    case 'signed': {
+      const firstSigning=!item.signed;
+      Object.assign(item,values);
+      item.step=3;
+      save();
+      go(firstSigning?'celebration':'guide',item.id);
+      return;
+    }
+    default: Object.assign(item,values);
+  }
+  save();render();
+  app.querySelector('[role=status]').textContent=saveError?'저장할 수 없어요.':'저장했어요.';
+});
+render();
+void startAuth();
+</script>
+</html>
